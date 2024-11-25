@@ -1,11 +1,18 @@
 /* Estilo básico para el mapa */
-html, body {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-  }
-  
-  #map {
-    height: 100%; /* El mapa ocupará toda la pantalla */
-  }
-  
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+#map {
+  height: 100%;
+  /* El mapa ocupará toda la pantalla */
+}
+
+
+.leaflet-interactive:focus {
+  outline: none;
+  /* Elimina el contorno predeterminado */
+}
