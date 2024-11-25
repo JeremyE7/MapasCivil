@@ -18,7 +18,7 @@ function cargarCapa(archivo, opciones = {}) {
 }
 
 // Estilos y configuración para cada capa
-cargarCapa('geojson/perimetro_urbano.geojson', {
+cargarCapa('geojson/PerimetroUrbano.geojson', {
   style: {
     color: 'red',
     weight: 2
