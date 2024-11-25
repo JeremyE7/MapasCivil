@@ -22,10 +22,27 @@ cargarCapa('geojson/DIVISIONBARRIAL/DivisionBarrialHatch.geojson', {
     weight: 2,
     color: feature.properties.color,
     opacity: 1,
-    fillOpacity: 1,
+    fillOpacity: 0.5,
   }),
   onEachFeature: (feature, layer) => {
     console.log(feature, layer);
+        layer.bindTooltip(feature.properties.Nombres, { permanent: false, direction: "center" });
+// Resaltar al pasar el ratón
+layer.on('mouseover', function () {
+  layer.setStyle({
+    fillOpacity: 0.7, // Incrementar opacidad
+  });
+});
+
+
+
+// Restaurar estilo original al salir
+layer.on('mouseout', function () {
+  layer.setStyle({
+    fillOpacity: 0.5, // Restaurar opacidad original
+    color: feature.properties.color // Restaurar color original
+  });
+});
     }
 });
 
@@ -84,3 +101,5 @@ cargarCapa('geojson/DIVISIONBARRIAL/DivisionBarrial.geojson', {
 //     layer.bindPopup(`<strong>Calle:</strong> ${feature.properties.text}`);
 //   }
 // });
+
+/* Evento para mostrar nombre al pasar raton por encima */
