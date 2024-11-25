@@ -10,40 +10,77 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 // Función para cargar capas GeoJSON
 function cargarCapa(archivo, opciones = {}) {
   fetch(archivo)
-    .then(response => response.json())
-    .then(data => {
-      L.geoJSON(data, opciones).addTo(map);
-    })
-    .catch(err => console.error(`Error al cargar ${archivo}:`, err));
+  .then(response => response.json())
+  .then(data => {
+    L.geoJSON(data, opciones).addTo(map);
+  })
+  .catch(err => console.error(`Error al cargar ${archivo}:`, err));
 }
 
-// Estilos y configuración para cada capa
-cargarCapa('geojson/PerimetroUrbano.geojson', {
-  style: {
-    color: 'red',
-    weight: 2
-  }
-});
-
-cargarCapa('geojson/parroquias_urbanas.geojson', {
-  style: {
-    color: 'blue',
-    fillOpacity: 0.4
-  },
-  onEachFeature: (feature, layer) => {
-    layer.bindPopup(`<strong>Parroquia:</strong> ${feature.properties.nombre}`);
-  }
-});
-
-cargarCapa('geojson/nombre_calles.geojson', {
-  pointToLayer: (feature, latlng) => L.circleMarker(latlng, {
-    radius: 5,
-    fillColor: 'yellow',
-    color: 'black',
-    weight: 1,
-    fillOpacity: 0.8
+cargarCapa('geojson/DIVISIONBARRIAL/DivisionBarrialHatch.geojson', {
+  style: feature => ({
+    weight: 2,
+    color: feature.properties.color,
+    opacity: 1,
+    fillOpacity: 0.7,
   }),
   onEachFeature: (feature, layer) => {
-    layer.bindPopup(`<strong>Calle:</strong> ${feature.properties.nombre}`);
+    console.log(feature, layer);
+    }
+});
+
+cargarCapa('geojson/PerimetroUrbano.geojson', {
+  style: {
+    color: 'black',
+    weight: 1,
   }
 });
+
+cargarCapa('geojson/Hidrografia.geojson', {
+  style: {
+    color: 'blue',
+    weight: 1,
+  }
+});
+
+//ESTO VA BIEN MAL JAJAJA
+// cargarCapa('geojson/Predrial2015.geojson', {
+//   style: {
+//     color: 'black',
+//     weight: 1,
+//     opacity: 0.5
+//   }
+// });
+
+cargarCapa('geojson/DIVISIONBARRIAL/DivisionBarrial.geojson', {
+  style: {
+    color: 'black',
+    weight: 1,
+  }
+});
+
+
+
+
+// cargarCapa('geojson/DIVISIONBARRIAL/Texto.geojson', {
+//   style: {
+//     color: 'red',
+//     weight: 1
+//   }
+// });
+
+
+// cargarCapa('geojson/NOMBRES/NombreCalles.geojson', {
+//   pointToLayer: (feature, latlng) => L.circleMarker(latlng, {
+//     radius: 5,
+//     fillColor: 'yellow',
+//     color: 'black',
+//     weight: 1,
+//     fillOpacity: 0.8
+//   }),
+//   onEachFeature: (feature, layer) => {
+//     console.log(feature);
+    
+//     layer.bindPopup(`<strong>Calle:</strong> ${feature.properties.text}`);
+//   }
+// });
