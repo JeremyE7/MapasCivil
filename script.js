@@ -22,7 +22,7 @@ cargarCapa('geojson/DIVISIONBARRIAL/DivisionBarrialHatch.geojson', {
     weight: 2,
     color: feature.properties.color,
     opacity: 1,
-    fillOpacity: 0.7,
+    fillOpacity: 1,
   }),
   onEachFeature: (feature, layer) => {
     console.log(feature, layer);
