@@ -1,9 +1,10 @@
 /* eslint-disable no-undef */
 // Crear el mapa centrado en Loja, Ecuador
 const $navLayers = document.querySelector('#layers')
-const layers = []
+let layers = []
 let canDrop = false
 let draggingLi = null
+let previewElement = null
 
 function dragoverHandler (ev) {
   ev.preventDefault()
@@ -13,47 +14,82 @@ function dragoverHandler (ev) {
   } else {
     ev.dataTransfer.dropEffect = 'move'
     canDrop = true
-    // // Colocar una vista previa del elemento en donde se va a soltar
-    // if (ev.target.tagName.toLowerCase() === 'li') {
-    //   ev.target.parentElement.insertBefore(draggingLi, ev.target)
-    // } else {
-    //   $navLayers.appendChild(draggingLi)
-    // }
+
+    // Colocar la vista previa del elemento
+    if (!previewElement) {
+      previewElement = draggingLi.cloneNode(true) // Crear la copia del elemento
+      previewElement.style.opacity = 0.5 // Vista previa semi-transparente
+      previewElement.style.pointerEvents = 'none' // Sin interactividad
+      previewElement.id = `preview-${draggingLi.id}` // ID único
+    }
+
+    // Asegurarse de que no haya múltiples vistas previas
+    if (ev.target.tagName.toLowerCase() === 'li') {
+      draggingLi.style.display = 'none'
+      if (ev.target.nextSibling) {
+        $navLayers.insertBefore(previewElement, ev.target.nextSibling)
+      } else {
+        $navLayers.appendChild(previewElement)
+      }
+    }
   }
 }
 
 function dropHandler (ev) {
   ev.preventDefault()
+  console.log('Drop')
+
   const data = ev.dataTransfer.getData('text/plain')
-  const li = document.querySelector(`#${data}`).parentElement
-  console.log(ev.target.nextSibling)
-  const nextLi = ev.target.nextSibling
+  const originalLi = document.querySelector(`#${data}`).parentElement
+  draggingLi.style.display = 'flex'
 
-  if (ev.target.tagName.toLowerCase() === 'li' && canDrop) {
-    console.log(ev.target.nextSibling)
-    $navLayers.removeChild(li)
+  if (!canDrop || !draggingLi) return
 
-    if (nextLi === draggingLi) {
-      console.log('inserting before', ev.target)
-      $navLayers.insertBefore(li, ev.target)
-    } else {
-      console.log('appending', ev.target)
-      $navLayers.insertBefore(li, ev.target.nextSibling)
-    }
+  if (previewElement) {
+    console.log('Dropped', draggingLi, 'before', previewElement.nextSibling)
 
-    if (!nextLi) {
-      console.log('appending at the end', ev.target)
-      $navLayers.appendChild(li)
-      return
-    }
+    previewElement.after(draggingLi) // Inserta el elemento arrastrado
+    previewElement.remove() // Elimina la vista previa
+    previewElement = null
   }
+  updateListLayer()
+  renderAllLayers()
   draggingLi = null
   canDrop = false
-  li.style.opacity = 1
+  originalLi.style.opacity = 1 // Restaura opacidad
 }
 
 $navLayers.addEventListener('dragover', dragoverHandler)
 $navLayers.addEventListener('drop', dropHandler)
+
+function updateListLayer () {
+  // Verificar que orden tienen las capas en el dom y actualizar el orden de la lista
+  const layersDOM = document.querySelectorAll('#layers li')
+  const layersChecked = Array.from(layersDOM).filter(l => l.lastChild.checked)
+  const layersId = layersChecked.map(l => l.lastChild.id)
+  const layersAux = layersId.map(id => {
+    console.log(id)
+
+    return layers.find(l => 'layer-' + l._leaflet_id === id)
+  })
+  console.log(layersId, layersDOM, layersAux)
+  layers = layersAux
+}
+
+function renderAllLayers () {
+  console.log('Rendering all layers', layers)
+
+  // Eliminar todas las capas del mapa
+  layers.forEach(layer => {
+    if (map.hasLayer(layer)) {
+      map.removeLayer(layer)
+    }
+  })
+  // Añadir todas las capas al mapa
+  layers.reverse().forEach(layer => {
+    layer.addTo(map)
+  })
+}
 
 const map = L.map('map').setView([-3.99313, -79.20422], 13) // Coordenadas y zoom inicial
 
@@ -97,8 +133,14 @@ function addLayerOption (layer, opciones) {
   })
 
   li.addEventListener('dragend', function (e) {
-    draggingLi = null
     li.style.opacity = 1
+
+    if (previewElement) {
+      draggingLi.style.display = 'flex'
+      draggingLi = null
+      previewElement.remove()
+      previewElement = null
+    }
   })
   li.appendChild(checkbox)
   $navLayers.appendChild(li)
