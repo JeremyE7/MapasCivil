@@ -41,3 +41,11 @@ body {
   height: 30px;
   align-items: center;
 }
+
+.custom-text-icon {
+  font-size: 10px;
+  text-align: center;
+  white-space: nowrap;
+  font-weight: bold;
+  color: darkblue;
+}

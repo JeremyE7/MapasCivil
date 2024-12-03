@@ -1,10 +1,13 @@
 /* eslint-disable no-undef */
+import { handleZoomEnd, map } from './leaflet.js'
+
 // Crear el mapa centrado en Loja, Ecuador
 const $navLayers = document.querySelector('#layers')
 let layers = []
 let canDrop = false
 let draggingLi = null
 let previewElement = null
+let handleZoom
 
 function dragoverHandler (ev) {
   ev.preventDefault()
@@ -78,46 +81,62 @@ function updateListLayer () {
 
 function renderAllLayers () {
   console.log('Rendering all layers', layers)
-
   // Eliminar todas las capas del mapa
   layers.forEach(layer => {
-    if (map.hasLayer(layer)) {
-      map.removeLayer(layer)
+    if (!layer.options.pointToLayer) {
+      if (map.hasLayer(layer)) {
+        map.removeLayer(layer)
+      }
     }
   })
   // Añadir todas las capas al mapa
   layers.reverse().forEach(layer => {
-    layer.addTo(map)
+    if (!layer.options.pointToLayer) {
+      console.log('Adding layer', layer, layer.options.pointToLayer)
+      layer.addTo(map)
+    }
   })
 }
 
-const map = L.map('map').setView([-3.99313, -79.20422], 13) // Coordenadas y zoom inicial
-
-// Agregar un mapa base (OpenStreetMap)
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  maxZoom: 18,
-  attribution: '© OpenStreetMap contributors'
-}).addTo(map)
-
-function addLayerOption (layer, opciones) {
+function addLayerOption (layer, opciones, zoom) {
   const layerAux = L.geoJSON(layer, opciones)
   const checkbox = document.createElement('input')
   const li = document.createElement('li')
   checkbox.type = 'checkbox'
   checkbox.checked = false
   checkbox.id = 'layer-' + layerAux._leaflet_id
+  console.log(layers)
   checkbox.onchange = function () {
     if (checkbox.checked) {
+      $navLayers.removeChild(li)
+      $navLayers.prepend(li)
       if (layers.find(l => ('layer-' + l._leaflet_id) === checkbox.id)) return
       console.log('adding layer', layerAux)
       layers.push(layerAux)
-      layerAux.addTo(map)
+      if (!zoom) {
+        layerAux.addTo(map)
+      } else {
+        console.log('adding zoom event')
+        handleZoom = handleZoomEnd.bind(null, layerAux, zoom) // Guardar la referencia
+        map.on('zoomend', handleZoom)
+      }
     } else {
-      const layerAux = layers.find(l => 'layer-' + l._leaflet_id === checkbox.id)
-      console.log('removing layer', layerAux, layers)
-      if (map.hasLayer(layerAux)) {
-        map.removeLayer(layerAux)
-        layers.splice(layers.indexOf(layerAux), 1)
+      $navLayers.removeChild(li)
+      $navLayers.append(li)
+
+      const layerDeleted = layers.find(l => 'layer-' + l._leaflet_id === checkbox.id)
+      console.log('layer to be deleted', map.hasLayer(layerDeleted))
+
+      if (handleZoom && zoom) {
+        console.log('removing zoom event')
+        map.off('zoomend', handleZoom) // Usar la referencia exacta
+        layers.splice(layers.indexOf(layerDeleted), 1)
+      }
+
+      if (map.hasLayer(layerDeleted)) {
+        map.removeLayer(layerDeleted)
+        layers.splice(layers.indexOf(layerDeleted), 1)
+        console.log('removing layer', layerDeleted, layers)
       }
     }
   }
@@ -147,90 +166,11 @@ function addLayerOption (layer, opciones) {
 }
 
 // Función para cargar capas GeoJSON
-function cargarCapa (archivo, opciones = {}) {
+export function cargarCapa (archivo, opciones = {}, zoom) {
   fetch(archivo)
     .then(response => response.json())
     .then(data => {
-      addLayerOption(data, opciones)
+      addLayerOption(data, opciones, zoom)
     })
     .catch(err => console.error(`Error al cargar ${archivo}:`, err))
 }
-
-cargarCapa('geojson/DIVISIONBARRIAL/DivisionBarrialHatch.geojson', {
-  style: feature => ({
-    weight: 2,
-    color: feature.properties.color,
-    opacity: 1,
-    fillOpacity: 0.5
-  }),
-  onEachFeature: (feature, layer) => {
-    // console.log(feature, layer)
-    layer.bindTooltip(feature.properties.Nombres, { permanent: false, direction: 'left' })
-    layer.on('mouseover', function () {
-      layer.setStyle({
-        fillOpacity: 1
-      })
-    })
-
-    layer.on('mouseout', function () {
-      layer.setStyle({
-        fillOpacity: 0.5,
-        color: feature.properties.color
-      })
-    })
-  }
-})
-
-cargarCapa('geojson/PerimetroUrbano.geojson', {
-  style: {
-    color: 'black',
-    weight: 1
-  }
-})
-
-cargarCapa('geojson/Hidrografia.geojson', {
-  style: {
-    color: 'blue',
-    weight: 1
-  }
-})
-
-// ESTO VA BIEN MAL JAJAJA
-// cargarCapa('geojson/Predrial2015.geojson', {
-//   style: {
-//     color: 'black',
-//     weight: 1,
-//     opacity: 0.5
-//   }
-// });
-
-cargarCapa('geojson/DIVISIONBARRIAL/DivisionBarrial.geojson', {
-  style: {
-    color: 'black',
-    weight: 1
-  }
-})
-
-// cargarCapa('geojson/DIVISIONBARRIAL/Texto.geojson', {
-//   style: {
-//     color: 'red',
-//     weight: 1
-//   }
-// });
-
-// cargarCapa('geojson/NOMBRES/NombreCalles.geojson', {
-//   pointToLayer: (feature, latlng) => L.circleMarker(latlng, {
-//     radius: 5,
-//     fillColor: 'yellow',
-//     color: 'black',
-//     weight: 1,
-//     fillOpacity: 0.8
-//   }),
-//   onEachFeature: (feature, layer) => {
-//     console.log(feature);
-
-//     layer.bindPopup(`<strong>Calle:</strong> ${feature.properties.text}`);
-//   }
-// });
-
-/* Evento para mostrar nombre al pasar raton por encima */
