@@ -21,40 +21,187 @@ export function handleZoomEnd (layer, zoom) {
   }
 }
 
-cargarCapa('geojson/DIVISIONBARRIAL/DivisionBarrialHatch.geojson', {
-  style: feature => ({
-    weight: 2,
-    color: feature.properties.color,
-    opacity: 1,
-    fillOpacity: 0.5
-  }),
-  onEachFeature: (feature, layer) => {
-    layer.bindTooltip(feature.properties.Nombres, { permanent: false, direction: 'left' })
-    layer.on('mouseover', function () {
-      layer.setStyle({
-        fillOpacity: 0.7
-      })
-    })
+// cargarCapa('geojson/DIVISIONBARRIAL/DivisionBarrialHatch.geojson', {
+//   style: feature => ({
+//     weight: 2,
+//     color: feature.properties.color,
+//     opacity: 1,
+//     fillOpacity: 0.5
+//   }),
+//   onEachFeature: (feature, layer) => {
+//     layer.bindTooltip(feature.properties.Nombres, { permanent: false, direction: 'left' })
+//     layer.on('mouseover', function () {
+//       layer.setStyle({
+//         fillOpacity: 0.7
+//       })
+//     })
 
-    layer.on('mouseout', function () {
-      layer.setStyle({
-        fillOpacity: 0.5,
-        color: feature.properties.color
-      })
-    })
-  }
-})
+//     layer.on('mouseout', function () {
+//       layer.setStyle({
+//         fillOpacity: 0.5,
+//         color: feature.properties.color
+//       })
+//     })
+//   }
+// })
 
-cargarCapa('geojson/PerimetroUrbano.geojson', {
+// cargarCapa('geojson/PerimetroUrbano.geojson', {
+//   style: {
+//     color: 'black',
+//     weight: 1
+//   }
+// })
+
+cargarCapa('geojson/Cantones.geojson', {
   style: {
     color: 'black',
     weight: 1
   }
 })
 
-cargarCapa('geojson/Hidrografia.geojson', {
+cargarCapa('geojson/CantonLoja.geojson', {
   style: {
-    color: 'blue',
+    color: 'black',
+    weight: 1
+  }
+})
+
+cargarCapa('geojson/ConjuntoDeParroquias.geojson', {
+  style: {
+    color: 'black',
+    weight: 1
+  }
+})
+
+cargarCapa('geojson/DivisionParroquial.geojson', {
+  style: {
+    color: 'black',
+    weight: 1
+  }
+})
+
+cargarCapa('geojson/DivisionParroquiasUrbanas.geojson', {
+  style: {
+    color: 'black',
+    weight: 1
+  }
+})
+
+cargarCapa('geojson/DivisonBarrial.geojson', {
+  style: {
+    color: 'black',
+    weight: 1
+  }
+})
+
+cargarCapa('geojson/GeoformologiaRegional.geojson', {
+  style: {
+    color: 'black',
+    weight: 1
+  }
+})
+
+cargarCapa('geojson/GeologiaRegional.geojson', {
+  style: {
+    color: 'black',
+    weight: 1
+  }
+})
+
+cargarCapa('geojson/LimiteUrbano2009.geojson', {
+  style: {
+    color: 'black',
+    weight: 1
+  }
+})
+
+cargarCapa('geojson/LimiteUrbano2021.geojson', {
+  style: {
+    color: 'black',
+    weight: 1
+  }
+})
+
+cargarCapa('geojson/Parroquias.geojson', {
+  style: {
+    color: 'black',
+    weight: 1
+  }
+})
+
+cargarCapa('geojson/Predial2015.geojson', {
+  style: {
+    color: 'black',
+    weight: 1
+  }
+})
+
+cargarCapa('geojson/ProvinciaDeLoja.geojson', {
+  style: {
+    color: 'black',
+    weight: 1
+  }
+})
+
+cargarCapa('geojson/Provincias.geojson', {
+  style: {
+    color: 'black',
+    weight: 1
+  }
+})
+
+cargarCapa('geojson/RedDeAlcantarillados.geojson', {
+  style: {
+    color: 'black',
+    weight: 1
+  }
+})
+
+cargarCapa('geojson/SueloConsolidado.geojson', {
+  style: {
+    color: 'black',
+    weight: 1
+  }
+})
+
+cargarCapa('geojson/SueloDeProteccion.geojson', {
+  style: {
+    color: 'black',
+    weight: 1
+  }
+})
+
+cargarCapa('geojson/SueloNoConsolidado.geojson', {
+  style: {
+    color: 'black',
+    weight: 1
+  }
+})
+
+cargarCapa('geojson/Urbanizaciones.geojson', {
+  style: {
+    color: 'black',
+    weight: 1
+  }
+})
+
+cargarCapa('geojson/UsoDeSueloGeneral.geojson', {
+  style: {
+    color: 'black',
+    weight: 1
+  }
+})
+
+cargarCapa('geojson/COS.geojson', {
+  style: {
+    color: 'black',
+    weight: 1
+  }
+})
+
+cargarCapa('geojson/CUS.geojson', {
+  style: {
+    color: 'black',
     weight: 1
   }
 })
@@ -68,24 +215,25 @@ cargarCapa('geojson/Hidrografia.geojson', {
 //   }
 // });
 
-cargarCapa('geojson/DIVISIONBARRIAL/DivisionBarrial.geojson', {
-  style: {
-    color: 'black',
-    weight: 1
-  }
-})
+// cargarCapa('geojson/DIVISIONBARRIAL/DivisionBarrial.geojson', {
+//   style: {
+//     color: 'black',
+//     weight: 1
+//   }
+// })
 
-cargarCapa('geojson/DIVISIONBARRIAL/Texto.geojson', {
-  pointToLayer: (feature, latlng) => {
-    return L.marker(latlng, {
-      icon: L.divIcon({
-        className: 'custom-text-icon', // Clase personalizada para estilizar el texto
-        html: feature.properties.text, // Contenido del texto
-        iconSize: [0, 0] // Sin tamaño adicional para el ícono
-      })
-    })
-  }
-}, 15)
+// cargarCapa('geojson/DIVISIONBARRIAL/Texto.geojson', {
+//   pointToLayer: (feature, latlng) => {
+//     return L.marker(latlng, {
+//       icon: L.divIcon({
+//         className: 'custom-text-icon', // Clase personalizada para estilizar el texto
+//         html: feature.properties.text, // Contenido del texto
+//         iconSize: [0, 0] // Sin tamaño adicional para el ícono
+//       })
+//     })
+//   }
+// }, 15)
+
 
 // cargarCapa('geojson/NOMBRES/NombreCalles.geojson', {
 //   pointToLayer: (feature, latlng) => L.circleMarker(latlng, {
