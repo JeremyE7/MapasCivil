@@ -52,159 +52,40 @@ export function handleZoomEnd (layer, zoom) {
 //   }
 // })
 
-cargarCapa('geojson/Cantones.geojson', {
-  style: {
-    color: 'black',
-    weight: 1
-  }
-})
+const capas = [
+  { nombre: 'Cantones.geojson', color: 'blue' },
+  { nombre: 'CantonLoja.geojson', color: 'green' },
+  { nombre: 'ConjuntoDeParroquias.geojson', color: 'purple' },
+  { nombre: 'COS.geojson', color: 'orange' },
+  { nombre: 'CUS.geojson', color: 'brown' },
+  { nombre: 'DivisionParroquial.geojson', color: 'red' },
+  { nombre: 'DivisionParroquiasUrbanas.geojson', color: 'cyan' },
+  { nombre: 'DivisonBarrial.geojson', color: 'pink' },
+  { nombre: 'GeoformologiaRegional.geojson', color: 'yellow' },
+  { nombre: 'GeologiaRegional.geojson', color: 'teal' },
+  { nombre: 'Hidrografia.geojson', color: 'blue' },
+  { nombre: 'LimiteUrbano2009.geojson', color: 'black' },
+  { nombre: 'LimiteUrbano2021.geojson', color: 'black' },
+  { nombre: 'Parroquias.geojson', color: 'green' },
+  { nombre: 'Predial2015.geojson', color: 'purple' },
+  { nombre: 'ProvinciaDeLoja.geojson', color: 'orange' },
+  { nombre: 'Provincias.geojson', color: 'brown' },
+  { nombre: 'RedDeAlcantarillados.geojson', color: 'blue' },
+  { nombre: 'SueloConsolidado.geojson', color: 'green' },
+  { nombre: 'SueloDeProteccion.geojson', color: 'red' },
+  { nombre: 'SueloNoConsolidado.geojson', color: 'yellow' },
+  { nombre: 'Urbanizaciones.geojson', color: 'pink' },
+  { nombre: 'UsoDeSueloGeneral.geojson', color: 'teal' }
+];
 
-cargarCapa('geojson/CantonLoja.geojson', {
-  style: {
-    color: 'black',
-    weight: 1
-  }
-})
-
-cargarCapa('geojson/ConjuntoDeParroquias.geojson', {
-  style: {
-    color: 'black',
-    weight: 1
-  }
-})
-
-cargarCapa('geojson/DivisionParroquial.geojson', {
-  style: {
-    color: 'black',
-    weight: 1
-  }
-})
-
-cargarCapa('geojson/DivisionParroquiasUrbanas.geojson', {
-  style: {
-    color: 'black',
-    weight: 1
-  }
-})
-
-cargarCapa('geojson/DivisonBarrial.geojson', {
-  style: {
-    color: 'black',
-    weight: 1
-  }
-})
-
-cargarCapa('geojson/GeoformologiaRegional.geojson', {
-  style: {
-    color: 'black',
-    weight: 1
-  }
-})
-
-cargarCapa('geojson/GeologiaRegional.geojson', {
-  style: {
-    color: 'black',
-    weight: 1
-  }
-})
-
-cargarCapa('geojson/LimiteUrbano2009.geojson', {
-  style: {
-    color: 'black',
-    weight: 1
-  }
-})
-
-cargarCapa('geojson/LimiteUrbano2021.geojson', {
-  style: {
-    color: 'black',
-    weight: 1
-  }
-})
-
-cargarCapa('geojson/Parroquias.geojson', {
-  style: {
-    color: 'black',
-    weight: 1
-  }
-})
-
-cargarCapa('geojson/Predial2015.geojson', {
-  style: {
-    color: 'black',
-    weight: 1
-  }
-})
-
-cargarCapa('geojson/ProvinciaDeLoja.geojson', {
-  style: {
-    color: 'black',
-    weight: 1
-  }
-})
-
-cargarCapa('geojson/Provincias.geojson', {
-  style: {
-    color: 'black',
-    weight: 1
-  }
-})
-
-cargarCapa('geojson/RedDeAlcantarillados.geojson', {
-  style: {
-    color: 'black',
-    weight: 1
-  }
-})
-
-cargarCapa('geojson/SueloConsolidado.geojson', {
-  style: {
-    color: 'black',
-    weight: 1
-  }
-})
-
-cargarCapa('geojson/SueloDeProteccion.geojson', {
-  style: {
-    color: 'black',
-    weight: 1
-  }
-})
-
-cargarCapa('geojson/SueloNoConsolidado.geojson', {
-  style: {
-    color: 'black',
-    weight: 1
-  }
-})
-
-cargarCapa('geojson/Urbanizaciones.geojson', {
-  style: {
-    color: 'black',
-    weight: 1
-  }
-})
-
-cargarCapa('geojson/UsoDeSueloGeneral.geojson', {
-  style: {
-    color: 'black',
-    weight: 1
-  }
-})
-
-cargarCapa('geojson/COS.geojson', {
-  style: {
-    color: 'black',
-    weight: 1
-  }
-})
-
-cargarCapa('geojson/CUS.geojson', {
-  style: {
-    color: 'black',
-    weight: 1
-  }
-})
+capas.forEach(capa => {
+  cargarCapa(`geojson/${capa.nombre}`, {
+    style: {
+      color: capa.color,
+      weight: 1
+    }
+  });
+});
 
 // ESTO VA BIEN MAL JAJAJA
 // cargarCapa('geojson/Predrial2015.geojson', {

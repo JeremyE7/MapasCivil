@@ -97,73 +97,84 @@ function renderAllLayers () {
     }
   })
 }
+const categorias = {
+  'Límites': ['LimiteUrbano2009', 'LimiteUrbano2021'],
+  'Divisiones Administrativas': ['Cantones', 'CantonLoja', 'Parroquias', 'ProvinciaDeLoja', 'Provincias'],
+  'Geología': ['GeologiaRegional', 'GeoformologiaRegional'],
+  'Hidrografía': ['Hidrografia'],
+  'Uso del Suelo': ['SueloConsolidado', 'SueloDeProteccion', 'SueloNoConsolidado', 'UsoDeSueloGeneral'],
+  'Infraestructura': ['RedDeAlcantarillados', 'Urbanizaciones'],
+};
 
-function addLayerOption (layer, opciones, zoom) {
-  const layerAux = L.geoJSON(layer, opciones)
-  const checkbox = document.createElement('input')
-  const li = document.createElement('li')
-  checkbox.type = 'checkbox'
-  checkbox.checked = false
-  checkbox.id = 'layer-' + layerAux._leaflet_id
-  console.log(layers)
+function addLayerOption(layer, opciones, zoom) {
+  const layerAux = L.geoJSON(layer, opciones);
+  const checkbox = document.createElement('input');
+  checkbox.type = 'checkbox';
+  checkbox.checked = false;
+  checkbox.id = 'layer-' + layerAux._leaflet_id;
+
+  // 🔍 Obtener nombre desde properties
+  const feature = layer.name;
+  const nombreCapa = feature || 'Capa sin nombre';
+
   checkbox.onchange = function () {
     if (checkbox.checked) {
-      $navLayers.removeChild(li)
-      $navLayers.prepend(li)
-      if (layers.find(l => ('layer-' + l._leaflet_id) === checkbox.id)) return
-      console.log('adding layer', layerAux)
-      layers.push(layerAux)
-      if (!zoom) {
-        layerAux.addTo(map)
-      } else {
-        console.log('adding zoom event')
-        handleZoom = handleZoomEnd.bind(null, layerAux, zoom) // Guardar la referencia
-        map.on('zoomend', handleZoom)
-      }
+      layers.push(layerAux);
+      layerAux.addTo(map);
     } else {
-      $navLayers.removeChild(li)
-      $navLayers.append(li)
+      map.removeLayer(layerAux);
+      layers = layers.filter(l => l !== layerAux);
+    }
+  };
 
-      const layerDeleted = layers.find(l => 'layer-' + l._leaflet_id === checkbox.id)
-      console.log('layer to be deleted', map.hasLayer(layerDeleted))
+  const label = document.createElement('label');
+  label.textContent = nombreCapa;
+  label.prepend(checkbox);
 
-      if (handleZoom && zoom) {
-        console.log('removing zoom event')
-        map.off('zoomend', handleZoom) // Usar la referencia exacta
-        layers.splice(layers.indexOf(layerDeleted), 1)
-      }
+  const li = document.createElement('li');
+  li.appendChild(label);
 
-      if (map.hasLayer(layerDeleted)) {
-        map.removeLayer(layerDeleted)
-        layers.splice(layers.indexOf(layerDeleted), 1)
-        console.log('removing layer', layerDeleted, layers)
-      }
+  // 📌 Buscar en qué categoría está la capa
+  let categoriaEncontrada = null;
+  for (const [categoria, capas] of Object.entries(categorias)) {
+    if (capas.includes(nombreCapa)) {
+      categoriaEncontrada = categoria;
+      break;
     }
   }
 
-  li.innerHTML = layer.name
-  li.draggable = true
-  li.addEventListener('dragstart', function (e) {
-    draggingLi = li
-    e.dataTransfer.setData('text/plain', checkbox.id)
-    e.dataTransfer.effectAllowed = 'move'
-    li.style.opacity = 0.5
-    e.dataTransfer.setDragImage(li, 0, 0)
-  })
+  // 📌 Si pertenece a una categoría, agrupar en un <div> específico
+  if (categoriaEncontrada) {
+    let categoryDiv = document.getElementById(`category-${categoriaEncontrada.replace(/\s+/g, '-')}`);
+    
+    if (!categoryDiv) {
+      categoryDiv = document.createElement('div');
+      categoryDiv.id = `category-${categoriaEncontrada.replace(/\s+/g, '-')}`;
+      categoryDiv.classList.add('category');
 
-  li.addEventListener('dragend', function (e) {
-    li.style.opacity = 1
+      const categoryHeader = document.createElement('div');
+      categoryHeader.classList.add('category-header');
+      categoryHeader.textContent = categoriaEncontrada;
+      categoryHeader.onclick = function () {
+        const list = categoryDiv.querySelector('.category-list');
+        list.style.display = list.style.display === 'none' ? 'block' : 'none';
+      };
 
-    if (previewElement) {
-      draggingLi.style.display = 'flex'
-      draggingLi = null
-      previewElement.remove()
-      previewElement = null
+      const categoryList = document.createElement('ul');
+      categoryList.classList.add('category-list');
+      categoryList.style.display = 'none'; // Iniciar oculto
+
+      categoryDiv.appendChild(categoryHeader);
+      categoryDiv.appendChild(categoryList);
+      document.getElementById('layers').appendChild(categoryDiv);
     }
-  })
-  li.appendChild(checkbox)
-  $navLayers.appendChild(li)
+
+    categoryDiv.querySelector('.category-list').appendChild(li);
+  } else {
+    document.getElementById('layers').appendChild(li);
+  }
 }
+
 
 // Función para cargar capas GeoJSON
 export function cargarCapa (archivo, opciones = {}, zoom) {
@@ -174,3 +185,38 @@ export function cargarCapa (archivo, opciones = {}, zoom) {
     })
     .catch(err => console.error(`Error al cargar ${archivo}:`, err))
 }
+
+// Agregar barra de búsqueda
+const searchInput = document.createElement('input');
+searchInput.type = 'text';
+searchInput.placeholder = 'Buscar capa...';
+searchInput.id = 'layer-search';
+searchInput.classList.add('layer-search');
+
+// Insertar la barra de búsqueda en el nav
+const layersContainer = document.getElementById('layers');
+layersContainer.parentElement.insertBefore(searchInput, layersContainer);
+
+// Evento para filtrar capas en tiempo real
+searchInput.addEventListener('input', function () {
+  const searchText = this.value.toLowerCase();
+  const layerItems = document.querySelectorAll('#layers li');
+
+  layerItems.forEach(item => {
+    const layerName = item.textContent.toLowerCase();
+    if (layerName.includes(searchText)) {
+      item.style.display = 'block'; // Mostrar si coincide
+    } else {
+      item.style.display = 'none'; // Ocultar si no coincide
+    }
+  });
+
+  // Mostrar u ocultar categorías según si tienen capas visibles
+  const categoryLists = document.querySelectorAll('.category');
+  categoryLists.forEach(category => {
+    const items = category.querySelectorAll('.category-list li');
+    const hasVisibleItems = Array.from(items).some(item => item.style.display !== 'none');
+    
+    category.style.display = hasVisibleItems ? 'block' : 'none';
+  });
+});
