@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,20 +8,53 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="stylesheet" href="index.css" />
 </head>
+
 <body>
-  <div class="loader-container" >
+  <div class="loader-container">
     <span class="loader" id="loader"></span>
   </div>
   <nav class="nav_layers inter-400">
-    <input type="text" placeholder="Buscar capa..." id="layer-search" class="layer-search inter-400">
+    <div class="input-container">
+      <button>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+          class="icon icon-tabler icons-tabler-outline icon-tabler-deselect">
+          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+          <path d="M12 8h3a1 1 0 0 1 1 1v3" />
+          <path d="M16 16h-7a1 1 0 0 1 -1 -1v-7" />
+          <path d="M12 20v.01" />
+          <path d="M16 20v.01" />
+          <path d="M8 20v.01" />
+          <path d="M4 20v.01" />
+          <path d="M4 16v.01" />
+          <path d="M4 12v.01" />
+          <path d="M4 8v.01" />
+          <path d="M8 4v.01" />
+          <path d="M12 4v.01" />
+          <path d="M16 4v.01" />
+          <path d="M20 4v.01" />
+          <path d="M20 8v.01" />
+          <path d="M20 12v.01" />
+          <path d="M20 16v.01" />
+          <path d="M3 3l18 18" />
+        </svg>
+      </button>
+      <input type="text" placeholder="Buscar capa..." id="layer-search" class="layer-search inter-400">
+    </div>
+
     <ul id="layers">
-      
+
     </ul>
   </nav>
   <div id="map"></div>
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="leaflet.js" type="module"></script>
-  <script src="script.js" type="module"></script>
-  
+  <section class="helper">
+    <button>?</button>
+    <span class="help-text">Algunas capas pueden ser demasiado pesadas para funcionar a la vez</span>
+    <section />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="leaflet.js" type="module"></script>
+    <script src="script.js" type="module"></script>
+
 </body>
+
 </html>
