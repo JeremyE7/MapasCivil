@@ -31,6 +31,18 @@ export const capas = [
                 opacity: 1,
                 fillOpacity: 0.5
             }),
+            onEachFeature: (feature, layer) => {
+                layer.on('click', () => {
+                    alert(`COS: ${feature.properties['COS%']}`)
+                })
+                layer.on('mouseover', function () {
+                    this.setStyle({ weight: 3, fillOpacity: 1 }); // Aumenta el grosor del borde
+                });
+        
+                layer.on('mouseout', function () {
+                    this.setStyle({ weight: 2, fillOpacity: 0.5 }); // Vuelve al tamaño normal
+                });
+            },
         }
     },
     {
@@ -65,7 +77,7 @@ export const capas = [
         nombre: 'DivisonBarrial.geojson', displayName: 'División Barrial', config: {
             style: {
                 color: 'cyan',
-                weight: 1
+                weight: 2
             }
         }
     },
@@ -183,11 +195,16 @@ export const capas = [
     },
     {
         nombre: 'Urbanizaciones.geojson', displayName: 'Urbanizaciones', config: {
-            style: {
-                color: 'pink',
-                weight: 1
+            pointToLayer: (feature, latlng) => {                
+                return L.marker(latlng, {
+                    icon: L.divIcon({
+                        className: 'custom-text-icon', // Clase personalizada para estilizar el texto
+                        html: feature.properties.Nombre, // Contenido del texto
+                        iconSize: [0, 0] // Sin tamaño adicional para el ícono
+                    })
+                })
             }
-        }
+        }, zoom: 17
     },
     {
         nombre: 'UsoDeSueloGeneral.geojson', displayName: 'Uso de Suelo General', config: {
