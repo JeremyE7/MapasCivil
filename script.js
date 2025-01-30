@@ -5,6 +5,9 @@ import { handleZoomEnd, map } from './leaflet.js'
 const $navLayers = document.querySelector('#layers')
 const searchInput = document.querySelector('#layer-search')
 const $loader = document.querySelector('.loader-container')
+const $buttonHelper = document.querySelector('.helper button')
+const $spanHelper = document.querySelector('.helper span')
+const $buttonCleaner = document.querySelector('.input-container button')
 
 let layers = []
 let canDrop = false
@@ -12,7 +15,38 @@ let draggingLi = null
 let previewElement = null
 let handleZoom
 
-function debounce (func, delay) {
+document.addEventListener('keydown', function (e) {
+  //Hacer que haga focus en el input cuando se presione CTRL + F
+  if (e.ctrlKey && e.key === 'f') {
+    e.preventDefault()
+    searchInput.focus()
+  }
+})
+
+$buttonHelper.addEventListener('click', function () {
+  $spanHelper.style.display =  $spanHelper.style.display == 'block' ? 'none' : 'block'
+})
+
+$buttonCleaner.addEventListener('click', function () {
+  $navLayers.scrollTop = 0
+  //Resetear checkboxs
+  const checkboxes = document.querySelectorAll('#layers input')
+  checkboxes.forEach(checkbox => {
+    checkbox.checked = false
+    const parent = checkbox.parentElement.parentElement
+    //Poner estilos de desactivado al componente
+    parent.style.opacity = 1
+    checkbox.disabled = false
+
+  })
+  $buttonCleaner.style.pointerEvents = 'none'
+  $buttonCleaner.style.opacity = 0.5    
+  removeAllLayers()
+  updateListLayer()
+  renderAllLayers()
+})
+
+function debounce(func, delay) {
   let timer
   return function (...args) {
     clearTimeout(timer)
@@ -20,19 +54,17 @@ function debounce (func, delay) {
   }
 }
 
-export function showLoader () {
+export function showLoader() {
   $loader.style.display = 'flex'
   searchInput.disabled = true
 }
 
-export function hideLoader () {
-  console.log('Hide loader')
-
+export function hideLoader() {
   $loader.style.display = 'none'
   searchInput.disabled = false
 }
 
-function dragoverHandler (ev) {
+function dragoverHandler(ev) {
   ev.preventDefault()
 
   if (draggingLi === ev.target) {
@@ -65,7 +97,7 @@ function dragoverHandler (ev) {
   }
 }
 
-function dropHandler (ev) {
+function dropHandler(ev) {
   ev.preventDefault()
   console.log('Drop')
 
@@ -92,7 +124,7 @@ function dropHandler (ev) {
 $navLayers.addEventListener('dragover', dragoverHandler)
 $navLayers.addEventListener('drop', dropHandler)
 
-function updateListLayer () {
+function updateListLayer() {
   // Verificar que orden tienen las capas en el dom y actualizar el orden de la lista
   const layersDOM = document.querySelectorAll('#layers li')
   const layersChecked = Array.from(layersDOM).filter(l => l.querySelector('input').checked)
@@ -106,7 +138,7 @@ function updateListLayer () {
   layers = layersAux
 }
 
-function renderAllLayers () {
+function renderAllLayers() {
   console.log('Rendering all layers', layers)
   // Eliminar todas las capas del mapa
   layers.forEach(layer => {
@@ -121,6 +153,14 @@ function renderAllLayers () {
     if (!layer.options.pointToLayer) {
       console.log('Adding layer', layer, layer.options.pointToLayer)
       layer.addTo(map)
+    }
+  })
+}
+
+function removeAllLayers() {
+  layers.forEach(layer => {
+    if (map.hasLayer(layer)) {
+      map.removeLayer(layer)
     }
   })
 }
@@ -145,36 +185,45 @@ const soilLayers = [
 ]
 
 // Función para desactivar otras capas exclusivas
-function disableExclusiveLayers (selectedLayer) {
+function disableExclusiveLayers(selectedLayer) {
+  console.log('Disabling exclusive layers for', selectedLayer);
+
   exclusiveLayers.forEach(layerName => {
-    if (layerName !== selectedLayer.name && !soilLayers.includes(layerName)) {
-      const checkbox = document.querySelector(`input[data-layer-name="${layerName}"]`)
-      if (checkbox) {
-        const parent = checkbox.parentElement.parentElement
-        parent.style.opacity = 0.5
-        checkbox.checked = false
-        checkbox.disabled = true
-        // Eliminar capa del array de capas
-        const layerDeleted = layers.find(l => {
-          console.log('layer', l, selectedLayer)
+    if (layerName == selectedLayer.name || soilLayers.includes(layerName)) return
 
-          return l.name === selectedLayer.name
-        })
-        console.log('layer to be deleted', layerDeleted, layers, selectedLayer)
+    const checkbox = document.querySelector(`input[data-layer-name="${layerName}"]`)
+    
+    if (!checkbox) return
 
-        if (layerDeleted) {
-          if (map.hasLayer(layerDeleted)) {
-            map.removeLayer(layerDeleted)
-            layers.splice(layers.indexOf(layerDeleted), 1)
-          }
-        }
-      }
-    }
+    const parent = checkbox.parentElement.parentElement
+
+    //Poner estilos de desactivado al componente
+    parent.style.opacity = 0.5
+    checkbox.checked = false
+    checkbox.disabled = true
+
+    //Quitar el icono del puntero al checkbox
+    checkbox.style.cursor = 'auto'
+    checkbox.nextElementSibling.style.cursor = 'auto'
+    checkbox.parentElement.style.cursor = 'auto'
+    checkbox.parentElement.previousSibling.style.cursor = 'auto'
+
+    // Eliminar capa del array de capas
+    console.log('layers', layers, checkbox.id.split('-')[1]);
+    
+    const layerDeleted = layers.find(l => l._leaflet_id.toString() === checkbox.id.split('-')[1])
+    console.log('layer to be disable', layerDeleted);
+    
+    if (!layerDeleted) return
+    if (!map.hasLayer(layerDeleted)) return
+
+    map.removeLayer(layerDeleted)
+    layers.splice(layers.indexOf(layerDeleted), 1)
   })
 }
 
 // Función para reactivar las capas exclusivas
-function enableExclusiveLayers () {
+function enableExclusiveLayers() {
   exclusiveLayers.forEach(layerName => {
     const checkbox = document.querySelector(`input[data-layer-name="${layerName}"]`)
     if (checkbox && !checkbox.checked) {
@@ -183,7 +232,7 @@ function enableExclusiveLayers () {
     }
   })
 }
-function addLayerOption (layer, opciones, displayName, zoom) {
+function addLayerOption(layer, opciones, displayName, zoom) {
   const layerAux = L.geoJSON(layer, opciones)
   const checkbox = document.createElement('input')
   const li = document.createElement('li')
@@ -246,9 +295,15 @@ function addLayerOption (layer, opciones, displayName, zoom) {
         enableExclusiveLayers()
       }
     }
+    if(layers.length > 0) {
+      $buttonCleaner.style.pointerEvents = 'auto'
+      $buttonCleaner.style.opacity = 1
+    }
+    console.log('Layers:', layers);
+    
   }
 
-  li.innerHTML = displayName || layer.name
+  li.innerHTML = `<label for="${checkbox.id}">${displayName || layer.name}</label>`
   li.draggable = true
   li.addEventListener('dragstart', function (e) {
     draggingLi = li
@@ -277,7 +332,7 @@ function addLayerOption (layer, opciones, displayName, zoom) {
 }
 
 // Función para cargar capas GeoJSON
-export async function cargarCapa (archivo, opciones = {}, displayName, zoom) {
+export async function cargarCapa(archivo, opciones = {}, displayName, zoom) {
   try {
     const response = await fetch(archivo)
     const data = await response.json()
@@ -290,7 +345,7 @@ export async function cargarCapa (archivo, opciones = {}, displayName, zoom) {
 // Evento para filtrar capas en tiempo real
 searchInput.addEventListener('input', debounce(searchLayer, 300))
 
-function searchLayer () {
+function searchLayer() {
   const searchText = this.value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
   const layerItems = document.querySelectorAll('#layers li')
 
