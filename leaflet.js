@@ -24,7 +24,7 @@ function loadLayers () {
   showLoader()
 
   const promises = capas.map(capa => {
-    return cargarCapa(`geojson/${capa.nombre}`, capa.config, capa.displayName)
+    return cargarCapa(`geojson/${capa.nombre}`, capa.config, capa.displayName, capa.zoom)
   })
 
   Promise.all(promises)
