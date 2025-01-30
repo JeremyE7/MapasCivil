@@ -3,11 +3,32 @@ import { handleZoomEnd, map } from './leaflet.js'
 
 // Crear el mapa centrado en Loja, Ecuador
 const $navLayers = document.querySelector('#layers')
+const searchInput = document.querySelector('#layer-search')
+const $loader = document.querySelector(".loader-container"); 
+
 let layers = []
 let canDrop = false
 let draggingLi = null
 let previewElement = null
 let handleZoom
+
+function debounce(func, delay) {
+  let timer
+  return function (...args) {
+    clearTimeout(timer)
+    timer = setTimeout(() => func.apply(this, args), delay)
+  }
+}
+
+export function showLoader() {
+  $loader.style.display = "flex";
+  searchInput.disabled = true
+}
+
+export function hideLoader() {
+  $loader.style.display = "none";
+  searchInput.disabled = false
+}
 
 function dragoverHandler (ev) {
   ev.preventDefault()
@@ -24,6 +45,10 @@ function dragoverHandler (ev) {
       previewElement.style.opacity = 0.5 // Vista previa semi-transparente
       previewElement.style.pointerEvents = 'none' // Sin interactividad
       previewElement.id = `preview-${draggingLi.id}` // ID único
+      previewElement.style.animation = 'none' // Detener animaciones
+      //Desactivar el checkbox de la vista previa
+      previewElement.querySelector('input').disabled = true
+      previewElement.querySelector('.checkmark').style.animation = 'none'
     }
 
     // Asegurarse de que no haya múltiples vistas previas
@@ -102,11 +127,12 @@ function addLayerOption (layer, opciones, displayName,zoom) {
   const layerAux = L.geoJSON(layer, opciones)
   const checkbox = document.createElement('input')
   const li = document.createElement('li')
+  const label = document.createElement('label')
+  label.classList.add('container')
+  label.appendChild(checkbox)
   checkbox.type = 'checkbox'
   checkbox.checked = false
-  checkbox.classList.add('ui-checkbox')
   checkbox.id = 'layer-' + layerAux._leaflet_id
-  console.log("son", opciones)
   checkbox.onchange = function () {
     if (checkbox.checked) {
       $navLayers.removeChild(li)
@@ -162,53 +188,48 @@ function addLayerOption (layer, opciones, displayName,zoom) {
       previewElement = null
     }
   })
-  li.appendChild(checkbox)
+  label.appendChild(checkbox)
+  const div = document.createElement('div')
+  div.classList.add('checkmark')
+  label.appendChild(div)
+  li.appendChild(label)
   $navLayers.appendChild(li)
 }
 
 
 
 // Función para cargar capas GeoJSON
-export function cargarCapa (archivo, opciones = {}, displayName, zoom) {
-  fetch(archivo)
-    .then(response => response.json())
-    .then(data => {
-      addLayerOption(data, opciones, displayName, zoom)
-    })
-    .catch(err => console.error(`Error al cargar ${archivo}:`, err))
+export async function cargarCapa(archivo, opciones = {}, displayName, zoom) {
+  try {
+    const response = await fetch(archivo);
+    const data = await response.json();
+    addLayerOption(data, opciones, displayName, zoom);
+  } catch (err) {
+    return console.error(`Error al cargar ${archivo}:`, err);
+  }
 }
 
-// Agregar barra de búsqueda
-const searchInput = document.createElement('input');
-searchInput.type = 'text';
-searchInput.placeholder = 'Buscar capa...';
-searchInput.id = 'layer-search';
-searchInput.classList.add('layer-search');
-
-// Insertar la barra de búsqueda en el nav
-const layersContainer = document.getElementById('layers');
-layersContainer.parentElement.insertBefore(searchInput, layersContainer);
-
 // Evento para filtrar capas en tiempo real
-searchInput.addEventListener('input', function () {
-  const searchText = this.value.toLowerCase();
-  const layerItems = document.querySelectorAll('#layers li');
+searchInput.addEventListener('input', debounce(searchLayer, 300)) 
+
+function searchLayer () {
+  const searchText = this.value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+  const layerItems = document.querySelectorAll('#layers li')
+
+  if(this.value === '') {
+    layerItems.forEach(item => {
+      item.style.display = 'flex' // Mostrar si no hay texto
+    })
+    updateListLayer()
+    return
+  }
 
   layerItems.forEach(item => {
-    const layerName = item.textContent.toLowerCase();
+    const layerName = item.textContent.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
     if (layerName.includes(searchText)) {
-      item.style.display = 'block'; // Mostrar si coincide
+      item.style.display = 'flex' // Mostrar si coincide
     } else {
-      item.style.display = 'none'; // Ocultar si no coincide
+      item.style.display = 'none' // Ocultar si no coincide
     }
-  });
-
-  // Mostrar u ocultar categorías según si tienen capas visibles
-  const categoryLists = document.querySelectorAll('.category');
-  categoryLists.forEach(category => {
-    const items = category.querySelectorAll('.category-list li');
-    const hasVisibleItems = Array.from(items).some(item => item.style.display !== 'none');
-    
-    category.style.display = hasVisibleItems ? 'block' : 'none';
-  });
-});
+  })
+}

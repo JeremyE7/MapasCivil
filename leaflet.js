@@ -1,5 +1,5 @@
 /* eslint-disable no-undef */
-import { cargarCapa } from './script.js'
+import { cargarCapa, hideLoader, showLoader } from './script.js'
 export const map = L.map('map').setView([-3.99313, -79.20422], 13) // Coordenadas y zoom inicial
 import { capas } from './layers.js'
 // Agregar un mapa base (OpenStreetMap)
@@ -8,7 +8,7 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '© OpenStreetMap contributors'
 }).addTo(map)
 
-export function handleZoomEnd (layer, zoom) {
+export function handleZoomEnd(layer, zoom) {
   if (map.getZoom() >= zoom) {
     if (!map.hasLayer(layer)) {
       map.addLayer(layer)
@@ -21,9 +21,27 @@ export function handleZoomEnd (layer, zoom) {
 }
 
 
-capas.forEach(capa => {
-  cargarCapa(`geojson/${capa.nombre}`, capa.config, capa.displayName);
-});
+
+
+function loadLayers() {
+  showLoader() 
+
+  const promises = capas.map(capa => {
+    return cargarCapa(`geojson/${capa.nombre}`, capa.config, capa.displayName)
+  })
+  
+  Promise.all(promises)
+    .then((data) => {
+      console.log('Capas cargadas: ', data);
+      hideLoader() // Oculta el loader cuando todas las capas se hayan cargado
+    })
+    .catch(error => {
+      console.error("Error al cargar capas:", error)
+      hideLoader() // Oculta el loader cuando todas las capas se hayan cargado
+    })
+}
+
+loadLayers()
 
 // ESTO VA BIEN MAL JAJAJA
 // cargarCapa('geojson/Predrial2015.geojson', {

@@ -1,8 +1,19 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
+.inter-400 {
+  font-family: "Inter", serif;
+  font-optical-sizing: auto;
+  font-weight: 300;
+  font-style: normal;
+}
+
+
 html,
 body {
   margin: 0;
   padding: 0;
   height: 100%;
+  overflow: hidden;
 }
 
 #map {
@@ -16,23 +27,29 @@ body {
 
 .nav_layers{
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 0px;
+  bottom: 0px;
+  right: 0px;
   z-index: 1000;
-  background-color: #ffffffaa;
+  background-color: #ffffff81;
   padding: 20px;
   border-radius: 5px;
   box-shadow: 0 0 10px #00000085;
+  width: 270px;
 }
 
 #layers{
   display: flex;
   flex-direction: column;
-  max-height: 500px;
+  height: 94%;
   overflow-y: auto;
   list-style: none;
   padding: 0;
   margin: 0;
+  gap: 10px;
+  scrollbar-width: thin;
+  scrollbar-color: #d4aa70 #e4e4e4;
+  scrollbar-gutter: stable;
 }
 
 #layers li{
@@ -42,161 +59,165 @@ body {
   flex-direction: row-reverse;
   height: 30px;
   align-items: center;
+  padding: 10px;
+  transition: all 0.3s ease-in-out; 
+  animation: showFromLeft 0.5s ease-in-out;
 }
 
-.custom-text-icon {
-  font-size: 10px;
-  text-align: center;
-  white-space: nowrap;
-  font-weight: bold;
-  color: darkblue;
-}
-
-.category {
-  margin-bottom: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  background: white;
-}
-
-.category-header {
-  background: #ddd;
-  padding: 8px;
-  cursor: pointer;
-  font-weight: bold;
-  border-radius: 5px 5px 0 0;
-}
-
-.category-header:hover {
-  background: #ccc;
-}
-
-.category-list {
-  padding: 5px;
-  list-style: none;
-  margin: 0;
-
-}
-
-.category-list li {
-  padding: 5px;
-  display: flex;
-  align-items: center;
-}
-
-.category-list input {
-  margin-right: 10px;
-}
 .layer-search {
-  width: 100%;
+  width: 90%;
   padding: 5px;
   margin-bottom: 10px;
   border: 1px solid #ccc;
   border-radius: 4px;
 }
 
-
-/* From Uiverse.io by Galahhad */ 
-/* checkbox settings 👇 */
-
-.ui-checkbox {
-  --primary-color: #1677ff;
-  --secondary-color: #fff;
-  --primary-hover-color: #4096ff;
-  /* checkbox */
-  --checkbox-diameter: 20px;
-  --checkbox-border-radius: 5px;
-  --checkbox-border-color: #d9d9d9;
-  --checkbox-border-width: 1px;
-  --checkbox-border-style: solid;
-  /* checkmark */
-  --checkmark-size: 1.2;
-}
-
-.ui-checkbox, 
-.ui-checkbox *, 
-.ui-checkbox *::before, 
-.ui-checkbox *::after {
-  -webkit-box-sizing: border-box;
-  box-sizing: border-box;
-}
-
-.ui-checkbox {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  width: var(--checkbox-diameter);
-  height: var(--checkbox-diameter);
-  border-radius: var(--checkbox-border-radius);
-  background: var(--secondary-color);
-  border: var(--checkbox-border-width) var(--checkbox-border-style) var(--checkbox-border-color);
-  -webkit-transition: all 0.3s;
-  -o-transition: all 0.3s;
-  transition: all 0.3s;
-  cursor: pointer;
-  position: relative;
-}
-
-.ui-checkbox::after {
-  content: "";
+.loader-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 80%;
+  height: 90%;
   position: absolute;
+  background-color: #ffffffb9;
+}
+
+.loader {
+  position: absolute;
+  width: 48px;
+  height: 48px;
+  background: #282626;
+  transform: rotateX(65deg) rotate(45deg);
+  color: #d01e1e;
+  margin: 100% auto;
+  z-index: 2;
+}
+
+.loader:after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(36, 32, 32, 0.7);
+  animation: layerTr 1s linear infinite alternate;
+}
+
+.loader:before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(36, 32, 32, 0.7);
+  animation: layers1 1s linear infinite alternate;
+}
+
+@keyframes layers1 {
+  0% {
+    transform: translate(0, 0) scale(1)
+  }
+
+  100% {
+    transform: translate(25px, 25px) scale(1)
+  }
+}
+
+
+@keyframes layerTr {
+  0% {
+    transform: translate(0, 0) scale(1)
+  }
+
+  100% {
+    transform: translate(-25px, -25px) scale(1)
+  }
+}
+
+.container input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.container {
+  display: flex;
+  gap: 20px;
+  position: relative;
+  cursor: pointer;
+  font-size: 1.5rem;
+  user-select: none;
+}
+
+/* Create a custom checkbox */
+.checkmark {
+  --clr: #0B6E4F;
+  position: relative;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  -webkit-box-shadow: 0 0 0 calc(var(--checkbox-diameter) / 2.5) var(--primary-color);
-  box-shadow: 0 0 0 calc(var(--checkbox-diameter) / 2.5) var(--primary-color);
-  border-radius: inherit;
-  opacity: 0;
-  -webkit-transition: all 0.5s cubic-bezier(0.12, 0.4, 0.29, 1.46);
-  -o-transition: all 0.5s cubic-bezier(0.12, 0.4, 0.29, 1.46);
-  transition: all 0.5s cubic-bezier(0.12, 0.4, 0.29, 1.46);
+  height: 1em;
+  width: 1em;
+  background-color: #ccc;
+  border-radius: 50%;
+  transition: 300ms;
+  margin-right: 10px;
 }
 
-.ui-checkbox::before {
-  top: 40%;
-  left: 50%;
+/* When the checkbox is checked, add a blue background */
+.container input:checked ~ .checkmark {
+  background-color: var(--clr);
+  border-radius: .5rem;
+  animation: pulse 500ms ease-in-out;
+}
+
+/* Create the checkmark/indicator (hidden when not checked) */
+.checkmark:after {
   content: "";
   position: absolute;
-  width: 4px;
-  height: 7px;
-  border-right: 2px solid var(--secondary-color);
-  border-bottom: 2px solid var(--secondary-color);
-  -webkit-transform: translate(-50%, -50%) rotate(45deg) scale(0);
-  -ms-transform: translate(-50%, -50%) rotate(45deg) scale(0);
-  transform: translate(-50%, -50%) rotate(45deg) scale(0);
-  opacity: 0;
-  -webkit-transition: all 0.1s cubic-bezier(0.71, -0.46, 0.88, 0.6),opacity 0.1s;
-  -o-transition: all 0.1s cubic-bezier(0.71, -0.46, 0.88, 0.6),opacity 0.1s;
-  transition: all 0.1s cubic-bezier(0.71, -0.46, 0.88, 0.6),opacity 0.1s;
+  display: none;
 }
 
-/* actions */
-
-.ui-checkbox:hover {
-  border-color: var(--primary-color);
+/* Show the checkmark when checked */
+.container input:checked ~ .checkmark:after {
+  display: block;
 }
 
-.ui-checkbox:checked {
-  background: var(--primary-color);
-  border-color: transparent;
+/* Style the checkmark/indicator */
+.container .checkmark:after {
+  left: 0.3em;
+  top: 0.15em;
+  width: 0.25em;
+  height: 0.4em;
+  border: solid #E0E0E2;
+  border-width: 0 0.1em 0.11em 0;
+  transform: rotate(45deg);
 }
 
-.ui-checkbox:checked::before {
-  opacity: 1;
-  -webkit-transform: translate(-50%, -50%) rotate(45deg) scale(var(--checkmark-size));
-  -ms-transform: translate(-50%, -50%) rotate(45deg) scale(var(--checkmark-size));
-  transform: translate(-50%, -50%) rotate(45deg) scale(var(--checkmark-size));
-  -webkit-transition: all 0.2s cubic-bezier(0.12, 0.4, 0.29, 1.46) 0.1s;
-  -o-transition: all 0.2s cubic-bezier(0.12, 0.4, 0.29, 1.46) 0.1s;
-  transition: all 0.2s cubic-bezier(0.12, 0.4, 0.29, 1.46) 0.1s;
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 #0B6E4F90;
+    rotate: 20deg;
+  }
+
+  50% {
+    rotate: -20deg;
+  }
+
+  75% {
+    box-shadow: 0 0 0 10px #0B6E4F60;
+  }
+
+  100% {
+    box-shadow: 0 0 0 13px #0B6E4F30;
+    rotate: 0;
+  }
 }
 
-.ui-checkbox:active:not(:checked)::after {
-  -webkit-transition: none;
-  -o-transition: none;
-  -webkit-box-shadow: none;
-  box-shadow: none;
-  transition: none;
-  opacity: 1;
+@keyframes showFromLeft {
+  
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(0);
+  }
 }
