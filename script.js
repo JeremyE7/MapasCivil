@@ -97,91 +97,83 @@ function renderAllLayers () {
     }
   })
 }
-const categorias = {
-  'Límites': ['LimiteUrbano2009', 'LimiteUrbano2021'],
-  'Divisiones Administrativas': ['Cantones', 'CantonLoja', 'Parroquias', 'ProvinciaDeLoja', 'Provincias'],
-  'Geología': ['GeologiaRegional', 'GeoformologiaRegional'],
-  'Hidrografía': ['Hidrografia'],
-  'Uso del Suelo': ['SueloConsolidado', 'SueloDeProteccion', 'SueloNoConsolidado', 'UsoDeSueloGeneral'],
-  'Infraestructura': ['RedDeAlcantarillados', 'Urbanizaciones'],
-};
 
-function addLayerOption(layer, opciones, zoom) {
-  const layerAux = L.geoJSON(layer, opciones);
-  const checkbox = document.createElement('input');
-  checkbox.type = 'checkbox';
-  checkbox.checked = false;
-  checkbox.id = 'layer-' + layerAux._leaflet_id;
-
-  // 🔍 Obtener nombre desde properties
-  const feature = layer.name;
-  const nombreCapa = feature || 'Capa sin nombre';
-
+function addLayerOption (layer, opciones, displayName,zoom) {
+  const layerAux = L.geoJSON(layer, opciones)
+  const checkbox = document.createElement('input')
+  const li = document.createElement('li')
+  checkbox.type = 'checkbox'
+  checkbox.checked = false
+  checkbox.classList.add('ui-checkbox')
+  checkbox.id = 'layer-' + layerAux._leaflet_id
+  console.log("son", opciones)
   checkbox.onchange = function () {
     if (checkbox.checked) {
-      layers.push(layerAux);
-      layerAux.addTo(map);
+      $navLayers.removeChild(li)
+      $navLayers.prepend(li)
+      if (layers.find(l => ('layer-' + l._leaflet_id) === checkbox.id)) return
+      console.log('adding layer', layerAux)
+      layers.push(layerAux)
+      if (!zoom) {
+        layerAux.addTo(map)
+      } else {
+        console.log('adding zoom event')
+        handleZoom = handleZoomEnd.bind(null, layerAux, zoom) // Guardar la referencia
+        map.on('zoomend', handleZoom)
+      }
     } else {
-      map.removeLayer(layerAux);
-      layers = layers.filter(l => l !== layerAux);
-    }
-  };
+      $navLayers.removeChild(li)
+      $navLayers.append(li)
 
-  const label = document.createElement('label');
-  label.textContent = nombreCapa;
-  label.prepend(checkbox);
+      const layerDeleted = layers.find(l => 'layer-' + l._leaflet_id === checkbox.id)
+      console.log('layer to be deleted', map.hasLayer(layerDeleted))
 
-  const li = document.createElement('li');
-  li.appendChild(label);
+      if (handleZoom && zoom) {
+        console.log('removing zoom event')
+        map.off('zoomend', handleZoom) // Usar la referencia exacta
+        layers.splice(layers.indexOf(layerDeleted), 1)
+      }
 
-  // 📌 Buscar en qué categoría está la capa
-  let categoriaEncontrada = null;
-  for (const [categoria, capas] of Object.entries(categorias)) {
-    if (capas.includes(nombreCapa)) {
-      categoriaEncontrada = categoria;
-      break;
+      if (map.hasLayer(layerDeleted)) {
+        map.removeLayer(layerDeleted)
+        layers.splice(layers.indexOf(layerDeleted), 1)
+        console.log('removing layer', layerDeleted, layers)
+      }
     }
   }
 
-  // 📌 Si pertenece a una categoría, agrupar en un <div> específico
-  if (categoriaEncontrada) {
-    let categoryDiv = document.getElementById(`category-${categoriaEncontrada.replace(/\s+/g, '-')}`);
-    
-    if (!categoryDiv) {
-      categoryDiv = document.createElement('div');
-      categoryDiv.id = `category-${categoriaEncontrada.replace(/\s+/g, '-')}`;
-      categoryDiv.classList.add('category');
+  li.innerHTML = displayName || layer.name
+  li.draggable = true
+  li.addEventListener('dragstart', function (e) {
+    draggingLi = li
+    e.dataTransfer.setData('text/plain', checkbox.id)
+    e.dataTransfer.effectAllowed = 'move'
+    li.style.opacity = 0.5
+    e.dataTransfer.setDragImage(li, 0, 0)
+  })
 
-      const categoryHeader = document.createElement('div');
-      categoryHeader.classList.add('category-header');
-      categoryHeader.textContent = categoriaEncontrada;
-      categoryHeader.onclick = function () {
-        const list = categoryDiv.querySelector('.category-list');
-        list.style.display = list.style.display === 'none' ? 'block' : 'none';
-      };
+  li.addEventListener('dragend', function (e) {
+    li.style.opacity = 1
 
-      const categoryList = document.createElement('ul');
-      categoryList.classList.add('category-list');
-      categoryList.style.display = 'none'; // Iniciar oculto
-
-      categoryDiv.appendChild(categoryHeader);
-      categoryDiv.appendChild(categoryList);
-      document.getElementById('layers').appendChild(categoryDiv);
+    if (previewElement) {
+      draggingLi.style.display = 'flex'
+      draggingLi = null
+      previewElement.remove()
+      previewElement = null
     }
-
-    categoryDiv.querySelector('.category-list').appendChild(li);
-  } else {
-    document.getElementById('layers').appendChild(li);
-  }
+  })
+  li.appendChild(checkbox)
+  $navLayers.appendChild(li)
 }
 
 
+
 // Función para cargar capas GeoJSON
-export function cargarCapa (archivo, opciones = {}, zoom) {
+export function cargarCapa (archivo, opciones = {}, displayName, zoom) {
   fetch(archivo)
     .then(response => response.json())
     .then(data => {
-      addLayerOption(data, opciones, zoom)
+      addLayerOption(data, opciones, displayName, zoom)
     })
     .catch(err => console.error(`Error al cargar ${archivo}:`, err))
 }
