@@ -26,6 +26,8 @@ export function showLoader() {
 }
 
 export function hideLoader() {
+  console.log('Hide loader');
+  
   $loader.style.display = "none";
   searchInput.disabled = false
 }
@@ -93,8 +95,8 @@ $navLayers.addEventListener('drop', dropHandler)
 function updateListLayer () {
   // Verificar que orden tienen las capas en el dom y actualizar el orden de la lista
   const layersDOM = document.querySelectorAll('#layers li')
-  const layersChecked = Array.from(layersDOM).filter(l => l.lastChild.checked)
-  const layersId = layersChecked.map(l => l.lastChild.id)
+  const layersChecked = Array.from(layersDOM).filter(l => l.querySelector('input').checked)
+  const layersId = layersChecked.map(l => l.querySelector('input').id)
   const layersAux = layersId.map(id => {
     console.log(id)
 
@@ -177,9 +179,9 @@ function addLayerOption(layer, opciones, displayName, zoom) {
   label.appendChild(checkbox)
   checkbox.id = 'layer-' + layerAux._leaflet_id; 
   checkbox.setAttribute('data-layer-name', layer.name); 
-  console.log("son", opciones);
 
   checkbox.onchange = function () {
+    
       if (checkbox.checked) {
           $navLayers.removeChild(li);
           $navLayers.prepend(li);
@@ -204,6 +206,8 @@ function addLayerOption(layer, opciones, displayName, zoom) {
           $navLayers.append(li);
 
           // Encontrar la capa a eliminar usando _leaflet_id
+          console.log('layers', layers);
+          
           const layerDeleted = layers.find(l => 'layer-' + l._leaflet_id === checkbox.id);
           console.log('layer to be deleted', layerDeleted);
 

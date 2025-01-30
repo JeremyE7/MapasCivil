@@ -73,13 +73,17 @@ body {
 }
 
 .loader-container {
-  display: flex;
+  display: none;
   justify-content: center;
   align-items: center;
-  width: 80%;
-  height: 90%;
   position: absolute;
-  background-color: #ffffffb9;
+  top: 0px;
+  bottom: 0px;
+  right: 0px;
+  position: absolute;
+  background-color: #7e7b7bc0;
+  width: 310px;
+  z-index: 1001;
 }
 
 .loader {
