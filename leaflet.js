@@ -1,14 +1,14 @@
 /* eslint-disable no-undef */
-import { cargarCapa, hideLoader, showLoader } from './script.js'
-export const map = L.map('map').setView([-3.99313, -79.20422], 13) // Coordenadas y zoom inicial
+import { cargarCapa, hideLoader, showLoader } from './script.js' // Coordenadas y zoom inicial
 import { capas } from './layers.js'
+export const map = L.map('map').setView([-3.99313, -79.20422], 13)
 // Agregar un mapa base (OpenStreetMap)
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   maxZoom: 18,
   attribution: '© OpenStreetMap contributors'
 }).addTo(map)
 
-export function handleZoomEnd(layer, zoom) {
+export function handleZoomEnd (layer, zoom) {
   if (map.getZoom() >= zoom) {
     if (!map.hasLayer(layer)) {
       map.addLayer(layer)
@@ -20,23 +20,20 @@ export function handleZoomEnd(layer, zoom) {
   }
 }
 
-
-
-
-function loadLayers() {
-  showLoader() 
+function loadLayers () {
+  showLoader()
 
   const promises = capas.map(capa => {
     return cargarCapa(`geojson/${capa.nombre}`, capa.config, capa.displayName)
   })
-  
+
   Promise.all(promises)
     .then((data) => {
-      console.log('Capas cargadas: ', data);
+      console.log('Capas cargadas: ', data)
       hideLoader() // Oculta el loader cuando todas las capas se hayan cargado
     })
     .catch(error => {
-      console.error("Error al cargar capas:", error)
+      console.error('Error al cargar capas:', error)
       hideLoader() // Oculta el loader cuando todas las capas se hayan cargado
     })
 }
@@ -70,7 +67,6 @@ loadLayers()
 //     })
 //   }
 // }, 15)
-
 
 // cargarCapa('geojson/NOMBRES/NombreCalles.geojson', {
 //   pointToLayer: (feature, latlng) => L.circleMarker(latlng, {

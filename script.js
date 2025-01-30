@@ -4,7 +4,7 @@ import { handleZoomEnd, map } from './leaflet.js'
 // Crear el mapa centrado en Loja, Ecuador
 const $navLayers = document.querySelector('#layers')
 const searchInput = document.querySelector('#layer-search')
-const $loader = document.querySelector(".loader-container"); 
+const $loader = document.querySelector('.loader-container')
 
 let layers = []
 let canDrop = false
@@ -12,7 +12,7 @@ let draggingLi = null
 let previewElement = null
 let handleZoom
 
-function debounce(func, delay) {
+function debounce (func, delay) {
   let timer
   return function (...args) {
     clearTimeout(timer)
@@ -20,15 +20,15 @@ function debounce(func, delay) {
   }
 }
 
-export function showLoader() {
-  $loader.style.display = "flex";
+export function showLoader () {
+  $loader.style.display = 'flex'
   searchInput.disabled = true
 }
 
-export function hideLoader() {
-  console.log('Hide loader');
-  
-  $loader.style.display = "none";
+export function hideLoader () {
+  console.log('Hide loader')
+
+  $loader.style.display = 'none'
   searchInput.disabled = false
 }
 
@@ -48,7 +48,7 @@ function dragoverHandler (ev) {
       previewElement.style.pointerEvents = 'none' // Sin interactividad
       previewElement.id = `preview-${draggingLi.id}` // ID único
       previewElement.style.animation = 'none' // Detener animaciones
-      //Desactivar el checkbox de la vista previa
+      // Desactivar el checkbox de la vista previa
       previewElement.querySelector('input').disabled = true
       previewElement.querySelector('.checkmark').style.animation = 'none'
     }
@@ -136,151 +136,165 @@ const exclusiveLayers = [
   'SueloConsolidado',
   'SueloNoConsolidado',
   'SueloDeProteccion'
-];
+]
 
 const soilLayers = [
   'SueloConsolidado',
   'SueloNoConsolidado',
   'SueloDeProteccion'
-];
+]
 
 // Función para desactivar otras capas exclusivas
-function disableExclusiveLayers(selectedLayerName) {
+function disableExclusiveLayers (selectedLayer) {
   exclusiveLayers.forEach(layerName => {
-      if (layerName !== selectedLayerName && !soilLayers.includes(layerName)) {
-          const checkbox = document.querySelector(`input[data-layer-name="${layerName}"]`);
-          if (checkbox) {
-              checkbox.checked = false;
-              checkbox.disabled = true;
-              checkbox.parentElement.style.opacity = 0.5;
+    if (layerName !== selectedLayer.name && !soilLayers.includes(layerName)) {
+      const checkbox = document.querySelector(`input[data-layer-name="${layerName}"]`)
+      if (checkbox) {
+        const parent = checkbox.parentElement.parentElement
+        parent.style.opacity = 0.5
+        checkbox.checked = false
+        checkbox.disabled = true
+        // Eliminar capa del array de capas
+        const layerDeleted = layers.find(l => {
+          console.log('layer', l, selectedLayer)
+
+          return l.name === selectedLayer.name
+        })
+        console.log('layer to be deleted', layerDeleted, layers, selectedLayer)
+
+        if (layerDeleted) {
+          if (map.hasLayer(layerDeleted)) {
+            map.removeLayer(layerDeleted)
+            layers.splice(layers.indexOf(layerDeleted), 1)
           }
+        }
       }
-  });
+    }
+  })
 }
 
 // Función para reactivar las capas exclusivas
-function enableExclusiveLayers() {
+function enableExclusiveLayers () {
   exclusiveLayers.forEach(layerName => {
-      const checkbox = document.querySelector(`input[data-layer-name="${layerName}"]`);
-      if (checkbox && !checkbox.checked) { 
-          checkbox.disabled = false;
-          checkbox.parentElement.style.opacity = 1;
-      }
-  });
+    const checkbox = document.querySelector(`input[data-layer-name="${layerName}"]`)
+    if (checkbox && !checkbox.checked) {
+      checkbox.disabled = false
+      checkbox.parentElement.parentElement.style.opacity = 1
+    }
+  })
 }
-function addLayerOption(layer, opciones, displayName, zoom) {
-  const layerAux = L.geoJSON(layer, opciones);
-  const checkbox = document.createElement('input');
-  const li = document.createElement('li');
-  checkbox.type = 'checkbox';
-  checkbox.checked = false;
+function addLayerOption (layer, opciones, displayName, zoom) {
+  const layerAux = L.geoJSON(layer, opciones)
+  const checkbox = document.createElement('input')
+  const li = document.createElement('li')
+  checkbox.type = 'checkbox'
+  checkbox.checked = false
   const label = document.createElement('label')
   label.classList.add('container')
   label.appendChild(checkbox)
-  checkbox.id = 'layer-' + layerAux._leaflet_id; 
-  checkbox.setAttribute('data-layer-name', layer.name); 
+  checkbox.id = 'layer-' + layerAux._leaflet_id
+  checkbox.setAttribute('data-layer-name', layer.name)
 
   checkbox.onchange = function () {
-    
-      if (checkbox.checked) {
-          $navLayers.removeChild(li);
-          $navLayers.prepend(li);
-          if (layers.find(l => ('layer-' + l._leaflet_id) === checkbox.id)) return;
-          console.log('adding layer', layerAux);
-          layers.push(layerAux);
+    if (checkbox.checked) {
+      $navLayers.removeChild(li)
+      $navLayers.prepend(li)
+      if (layers.find(l => ('layer-' + l._leaflet_id) === checkbox.id)) return
+      console.log('adding layer', layerAux)
+      layers.push(layerAux)
 
-          if (!zoom) {
-              layerAux.addTo(map);
-          } else {
-              console.log('adding zoom event');
-              handleZoom = handleZoomEnd.bind(null, layerAux, zoom); // Guardar la referencia
-              map.on('zoomend', handleZoom);
-          }
-
-          // Desactivar otras capas exclusivas si se selecciona una capa exclusiva
-          if (exclusiveLayers.includes(layer.name)) {
-              disableExclusiveLayers(layer.name);
-          }
+      if (!zoom) {
+        layerAux.addTo(map)
       } else {
-          $navLayers.removeChild(li);
-          $navLayers.append(li);
-
-          // Encontrar la capa a eliminar usando _leaflet_id
-          console.log('layers', layers);
-          
-          const layerDeleted = layers.find(l => 'layer-' + l._leaflet_id === checkbox.id);
-          console.log('layer to be deleted', layerDeleted);
-
-          if (layerDeleted) { // Verificar que layerDeleted no sea undefined
-              if (handleZoom && zoom) {
-                  console.log('removing zoom event');
-                  map.off('zoomend', handleZoom); // Usar la referencia exacta
-                  layers.splice(layers.indexOf(layerDeleted), 1);
-              }
-
-              if (map.hasLayer(layerDeleted)) {
-                  map.removeLayer(layerDeleted);
-                  layers.splice(layers.indexOf(layerDeleted), 1);
-                  console.log('removing layer', layerDeleted, layers);
-              }
-          } else {
-              console.error('Layer not found:', checkbox.id);
-          }
-
-          // Reactivar las capas exclusivas si se deselecciona una capa exclusiva
-          if (exclusiveLayers.includes(layer.name)) {
-              enableExclusiveLayers();
-          }
+        console.log('adding zoom event')
+        handleZoom = handleZoomEnd.bind(null, layerAux, zoom) // Guardar la referencia
+        map.on('zoomend', handleZoom)
       }
-  };
 
-  li.innerHTML = displayName || layer.name;
-  li.draggable = true;
+      // Desactivar otras capas exclusivas si se selecciona una capa exclusiva
+      if (exclusiveLayers.includes(layer.name)) {
+        disableExclusiveLayers(layer)
+      }
+    } else {
+      $navLayers.removeChild(li)
+      $navLayers.append(li)
+
+      // Encontrar la capa a eliminar usando _leaflet_id
+      console.log('layers', layers)
+
+      const layerDeleted = layers.find(l => 'layer-' + l._leaflet_id === checkbox.id)
+      console.log('layer to be deleted', layerDeleted)
+
+      if (layerDeleted) { // Verificar que layerDeleted no sea undefined
+        if (handleZoom && zoom) {
+          console.log('removing zoom event')
+          map.off('zoomend', handleZoom) // Usar la referencia exacta
+          layers.splice(layers.indexOf(layerDeleted), 1)
+        }
+
+        if (map.hasLayer(layerDeleted)) {
+          map.removeLayer(layerDeleted)
+          layers.splice(layers.indexOf(layerDeleted), 1)
+          console.log('removing layer', layerDeleted, layers)
+        }
+      } else {
+        console.error('Layer not found:', checkbox.id)
+      }
+
+      // Reactivar las capas exclusivas si se deselecciona una capa exclusiva
+      if (exclusiveLayers.includes(layer.name)) {
+        enableExclusiveLayers()
+      }
+    }
+  }
+
+  li.innerHTML = displayName || layer.name
+  li.draggable = true
   li.addEventListener('dragstart', function (e) {
-      draggingLi = li;
-      e.dataTransfer.setData('text/plain', checkbox.id);
-      e.dataTransfer.effectAllowed = 'move';
-      li.style.opacity = 0.5;
-      e.dataTransfer.setDragImage(li, 0, 0);
-  });
+    draggingLi = li
+    e.dataTransfer.setData('text/plain', checkbox.id)
+    e.dataTransfer.effectAllowed = 'move'
+    li.style.opacity = 0.5
+    e.dataTransfer.setDragImage(li, 0, 0)
+  })
 
   li.addEventListener('dragend', function (e) {
-      li.style.opacity = 1;
+    li.style.opacity = 1
 
-      if (previewElement) {
-          draggingLi.style.display = 'flex';
-          draggingLi = null;
-          previewElement.remove();
-          previewElement = null;
-      }
-  });
+    if (previewElement) {
+      draggingLi.style.display = 'flex'
+      draggingLi = null
+      previewElement.remove()
+      previewElement = null
+    }
+  })
   label.appendChild(checkbox)
   const div = document.createElement('div')
   div.classList.add('checkmark')
   label.appendChild(div)
   li.appendChild(label)
-  $navLayers.appendChild(li);
+  $navLayers.appendChild(li)
 }
 
 // Función para cargar capas GeoJSON
-export async function cargarCapa(archivo, opciones = {}, displayName, zoom) {
+export async function cargarCapa (archivo, opciones = {}, displayName, zoom) {
   try {
-    const response = await fetch(archivo);
-    const data = await response.json();
-    addLayerOption(data, opciones, displayName, zoom);
+    const response = await fetch(archivo)
+    const data = await response.json()
+    addLayerOption(data, opciones, displayName, zoom)
   } catch (err) {
-    return console.error(`Error al cargar ${archivo}:`, err);
+    return console.error(`Error al cargar ${archivo}:`, err)
   }
 }
 
 // Evento para filtrar capas en tiempo real
-searchInput.addEventListener('input', debounce(searchLayer, 300)) 
+searchInput.addEventListener('input', debounce(searchLayer, 300))
 
 function searchLayer () {
-  const searchText = this.value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+  const searchText = this.value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
   const layerItems = document.querySelectorAll('#layers li')
 
-  if(this.value === '') {
+  if (this.value === '') {
     layerItems.forEach(item => {
       item.style.display = 'flex' // Mostrar si no hay texto
     })
@@ -289,7 +303,7 @@ function searchLayer () {
   }
 
   layerItems.forEach(item => {
-    const layerName = item.textContent.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    const layerName = item.textContent.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
     if (layerName.includes(searchText)) {
       item.style.display = 'flex' // Mostrar si coincide
       item.style.animation = 'none'

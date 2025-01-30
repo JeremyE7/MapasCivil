@@ -1,5 +1,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
 
+:root{
+  --color-dark-void: #151419;
+  --color-liquid-lava: #f56e0f;
+  --color-gluon-gray: #1b1b1e;
+  --color-slate-grey: #262626;
+  --color-dusty-gray: #878787;
+  --color-snow: #fbfbfb;
+}
+
 .inter-400 {
   font-family: "Inter", serif;
   font-optical-sizing: auto;
@@ -26,16 +35,18 @@ body {
 }
 
 .nav_layers{
+  --color-dark-void: #151419c5;
   position: absolute;
   top: 0px;
   bottom: 0px;
   right: 0px;
   z-index: 1000;
-  background-color: #ffffff81;
+  background-color: var(--color-dark-void);
   padding: 20px;
   border-radius: 5px;
   box-shadow: 0 0 10px #00000085;
   width: 270px;
+  color: var(--color-snow);
 }
 
 #layers{
@@ -48,7 +59,7 @@ body {
   margin: 0;
   gap: 10px;
   scrollbar-width: thin;
-  scrollbar-color: #d4aa70 #e4e4e4;
+  scrollbar-color: var(--color-liquid-lava) var(--color-dark-void);
   scrollbar-gutter: stable;
 }
 
@@ -61,15 +72,21 @@ body {
   align-items: center;
   padding: 10px;
   transition: all 0.3s ease-in-out; 
-  animation: showFromLeft 0.5s ease-in-out;
 }
 
 .layer-search {
+  --color-dark-void: #15141900;
   width: 90%;
   padding: 5px;
   margin-bottom: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  border: 1px solid var(--color-liquid-lava);
+  border-width: 0px 0px 1px 0px;
+  background-color: var(--color-dark-void);
+  color: var(--color-snow);
+}
+
+.layer-search:focus {
+  outline: none;
 }
 
 .loader-container {
@@ -81,7 +98,7 @@ body {
   bottom: 0px;
   right: 0px;
   position: absolute;
-  background-color: #7e7b7bc0;
+  background-color: var(--color-dark-void);
   width: 310px;
   z-index: 1001;
 }
@@ -90,7 +107,7 @@ body {
   position: absolute;
   width: 48px;
   height: 48px;
-  background: #282626;
+  background: var(--color-liquid-lava);
   transform: rotateX(65deg) rotate(45deg);
   color: #d01e1e;
   margin: 100% auto;
@@ -101,15 +118,16 @@ body {
   content: '';
   position: absolute;
   inset: 0;
-  background: rgba(36, 32, 32, 0.7);
+  background: var(--color-snow);
   animation: layerTr 1s linear infinite alternate;
 }
 
 .loader:before {
+  --color-dusty-gray: #8787876b;
   content: '';
   position: absolute;
   inset: 0;
-  background: rgba(36, 32, 32, 0.7);
+  background: var(--color-dusty-gray);
   animation: layers1 1s linear infinite alternate;
 }
 
@@ -159,7 +177,7 @@ body {
   left: 0;
   height: 1em;
   width: 1em;
-  background-color: #ccc;
+  background-color: var(--color-slate-grey);
   border-radius: 50%;
   transition: 300ms;
   margin-right: 10px;
@@ -167,7 +185,7 @@ body {
 
 /* When the checkbox is checked, add a blue background */
 .container input:checked ~ .checkmark {
-  background-color: var(--clr);
+  background-color: var(--color-liquid-lava);
   border-radius: .5rem;
   animation: pulse 500ms ease-in-out;
 }
@@ -190,14 +208,14 @@ body {
   top: 0.15em;
   width: 0.25em;
   height: 0.4em;
-  border: solid #E0E0E2;
+  border: solid var(--color-snow);
   border-width: 0 0.1em 0.11em 0;
   transform: rotate(45deg);
 }
 
 @keyframes pulse {
   0% {
-    box-shadow: 0 0 0 #0B6E4F90;
+    box-shadow: 0 0 0 var(--color-liquid-lava);
     rotate: 20deg;
   }
 
@@ -212,17 +230,6 @@ body {
   100% {
     box-shadow: 0 0 0 13px #0B6E4F30;
     rotate: 0;
-  }
-}
-
-@keyframes showFromLeft {
-  
-  0% {
-    transform: translateX(-100%);
-  }
-
-  100% {
-    transform: translateX(0);
   }
 }
 
