@@ -288,6 +288,8 @@ function searchLayer () {
     const layerName = item.textContent.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
     if (layerName.includes(searchText)) {
       item.style.display = 'flex' // Mostrar si coincide
+      item.style.animation = 'none'
+      item.style.animation = 'appear 0.5s forwards'
     } else {
       item.style.display = 'none' // Ocultar si no coincide
     }
