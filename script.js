@@ -98,75 +98,134 @@ function renderAllLayers () {
   })
 }
 
-function addLayerOption (layer, opciones, displayName,zoom) {
-  const layerAux = L.geoJSON(layer, opciones)
-  const checkbox = document.createElement('input')
-  const li = document.createElement('li')
-  checkbox.type = 'checkbox'
-  checkbox.checked = false
-  checkbox.classList.add('ui-checkbox')
-  checkbox.id = 'layer-' + layerAux._leaflet_id
-  console.log("son", opciones)
-  checkbox.onchange = function () {
-    if (checkbox.checked) {
-      $navLayers.removeChild(li)
-      $navLayers.prepend(li)
-      if (layers.find(l => ('layer-' + l._leaflet_id) === checkbox.id)) return
-      console.log('adding layer', layerAux)
-      layers.push(layerAux)
-      if (!zoom) {
-        layerAux.addTo(map)
-      } else {
-        console.log('adding zoom event')
-        handleZoom = handleZoomEnd.bind(null, layerAux, zoom) // Guardar la referencia
-        map.on('zoomend', handleZoom)
+const exclusiveLayers = [
+  'DivisonBarrial',
+  'DivisionParroquiasUrbanas',
+  'GeoformologiaRegional',
+  'GeologiaRegional',
+  'COS',
+  'CUS',
+  'UsoDeSueloGeneral',
+  'SueloConsolidado',
+  'SueloNoConsolidado',
+  'SueloDeProteccion'
+];
+
+const soilLayers = [
+  'SueloConsolidado',
+  'SueloNoConsolidado',
+  'SueloDeProteccion'
+];
+
+// Función para desactivar otras capas exclusivas
+function disableExclusiveLayers(selectedLayerName) {
+  exclusiveLayers.forEach(layerName => {
+      if (layerName !== selectedLayerName && !soilLayers.includes(layerName)) {
+          const checkbox = document.querySelector(`input[data-layer-name="${layerName}"]`);
+          if (checkbox) {
+              checkbox.checked = false;
+              checkbox.disabled = true;
+              checkbox.parentElement.style.opacity = 0.5;
+          }
       }
-    } else {
-      $navLayers.removeChild(li)
-      $navLayers.append(li)
-
-      const layerDeleted = layers.find(l => 'layer-' + l._leaflet_id === checkbox.id)
-      console.log('layer to be deleted', map.hasLayer(layerDeleted))
-
-      if (handleZoom && zoom) {
-        console.log('removing zoom event')
-        map.off('zoomend', handleZoom) // Usar la referencia exacta
-        layers.splice(layers.indexOf(layerDeleted), 1)
-      }
-
-      if (map.hasLayer(layerDeleted)) {
-        map.removeLayer(layerDeleted)
-        layers.splice(layers.indexOf(layerDeleted), 1)
-        console.log('removing layer', layerDeleted, layers)
-      }
-    }
-  }
-
-  li.innerHTML = displayName || layer.name
-  li.draggable = true
-  li.addEventListener('dragstart', function (e) {
-    draggingLi = li
-    e.dataTransfer.setData('text/plain', checkbox.id)
-    e.dataTransfer.effectAllowed = 'move'
-    li.style.opacity = 0.5
-    e.dataTransfer.setDragImage(li, 0, 0)
-  })
-
-  li.addEventListener('dragend', function (e) {
-    li.style.opacity = 1
-
-    if (previewElement) {
-      draggingLi.style.display = 'flex'
-      draggingLi = null
-      previewElement.remove()
-      previewElement = null
-    }
-  })
-  li.appendChild(checkbox)
-  $navLayers.appendChild(li)
+  });
 }
 
+// Función para reactivar las capas exclusivas
+function enableExclusiveLayers() {
+  exclusiveLayers.forEach(layerName => {
+      const checkbox = document.querySelector(`input[data-layer-name="${layerName}"]`);
+      if (checkbox && !checkbox.checked) { 
+          checkbox.disabled = false;
+          checkbox.parentElement.style.opacity = 1;
+      }
+  });
+}
+function addLayerOption(layer, opciones, displayName, zoom) {
+  const layerAux = L.geoJSON(layer, opciones);
+  const checkbox = document.createElement('input');
+  const li = document.createElement('li');
+  checkbox.type = 'checkbox';
+  checkbox.checked = false;
+  checkbox.classList.add('ui-checkbox');
+  checkbox.id = 'layer-' + layerAux._leaflet_id; 
+  checkbox.setAttribute('data-layer-name', layer.name); 
+  console.log("son", opciones);
 
+  checkbox.onchange = function () {
+      if (checkbox.checked) {
+          $navLayers.removeChild(li);
+          $navLayers.prepend(li);
+          if (layers.find(l => ('layer-' + l._leaflet_id) === checkbox.id)) return;
+          console.log('adding layer', layerAux);
+          layers.push(layerAux);
+
+          if (!zoom) {
+              layerAux.addTo(map);
+          } else {
+              console.log('adding zoom event');
+              handleZoom = handleZoomEnd.bind(null, layerAux, zoom); // Guardar la referencia
+              map.on('zoomend', handleZoom);
+          }
+
+          // Desactivar otras capas exclusivas si se selecciona una capa exclusiva
+          if (exclusiveLayers.includes(layer.name)) {
+              disableExclusiveLayers(layer.name);
+          }
+      } else {
+          $navLayers.removeChild(li);
+          $navLayers.append(li);
+
+          // Encontrar la capa a eliminar usando _leaflet_id
+          const layerDeleted = layers.find(l => 'layer-' + l._leaflet_id === checkbox.id);
+          console.log('layer to be deleted', layerDeleted);
+
+          if (layerDeleted) { // Verificar que layerDeleted no sea undefined
+              if (handleZoom && zoom) {
+                  console.log('removing zoom event');
+                  map.off('zoomend', handleZoom); // Usar la referencia exacta
+                  layers.splice(layers.indexOf(layerDeleted), 1);
+              }
+
+              if (map.hasLayer(layerDeleted)) {
+                  map.removeLayer(layerDeleted);
+                  layers.splice(layers.indexOf(layerDeleted), 1);
+                  console.log('removing layer', layerDeleted, layers);
+              }
+          } else {
+              console.error('Layer not found:', checkbox.id);
+          }
+
+          // Reactivar las capas exclusivas si se deselecciona una capa exclusiva
+          if (exclusiveLayers.includes(layer.name)) {
+              enableExclusiveLayers();
+          }
+      }
+  };
+
+  li.innerHTML = displayName || layer.name;
+  li.draggable = true;
+  li.addEventListener('dragstart', function (e) {
+      draggingLi = li;
+      e.dataTransfer.setData('text/plain', checkbox.id);
+      e.dataTransfer.effectAllowed = 'move';
+      li.style.opacity = 0.5;
+      e.dataTransfer.setDragImage(li, 0, 0);
+  });
+
+  li.addEventListener('dragend', function (e) {
+      li.style.opacity = 1;
+
+      if (previewElement) {
+          draggingLi.style.display = 'flex';
+          draggingLi = null;
+          previewElement.remove();
+          previewElement = null;
+      }
+  });
+  li.appendChild(checkbox);
+  $navLayers.appendChild(li);
+}
 
 // Función para cargar capas GeoJSON
 export function cargarCapa (archivo, opciones = {}, displayName, zoom) {
