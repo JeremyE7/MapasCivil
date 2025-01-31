@@ -1,3 +1,5 @@
+import { showDialog } from "./script.js";
+
 export const capas = [
     {
         nombre: 'Cantones.geojson', displayName: 'Cantones', config: {
@@ -169,8 +171,20 @@ export const capas = [
         nombre: 'SueloConsolidado.geojson', displayName: 'Suelo Consolidado', config: {
             style: {
                 color: 'green',
-                weight: 1
-            }
+                weight: 1,
+            },
+            onEachFeature: (feature, layer) => {
+                layer.on('click', () => {
+                    showDialog(feature.properties)
+                })
+                layer.on('mouseover', function () {
+                    this.setStyle({ weight: 3, fillOpacity: 1 }); // Aumenta el grosor del borde
+                });
+        
+                layer.on('mouseout', function () {
+                    this.setStyle({ weight: 1, fillOpacity: 0.3 }); // Vuelve al tamaño normal
+                });
+            },
         }
     },
     {

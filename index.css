@@ -72,6 +72,7 @@ body {
   align-items: center;
   padding: 10px;
   transition: all 0.3s ease-in-out; 
+  animation: appear 0.3s ease-in-out;
 }
 
 #layers li label:first-child{
@@ -331,4 +332,86 @@ body {
 
 .input-container button:hover{
   transform: scale(1.1);
+}
+
+
+.dialog{
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--color-dark-void);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+  color: var(--color-snow);
+  border: none;
+  font-family: 'Inter', sans-serif;
+  width: 350px;
+  border-radius: 20px;
+  box-shadow: 0 0 10px var(--color-dark-void);
+}
+
+.dialog::backdrop{
+  background-color: var(--color-dark-void);
+  opacity: 0.5;
+}
+
+.dialog h1{
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+  margin-top: 10px;
+  color: var(--color-dusty-gray);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: 20px;
+}
+
+.dialog section{
+  padding: 10px 20px;
+}
+
+
+.dialog section div{
+  padding: 10px;
+  border-radius: 10px;
+  display: flex;
+  gap: 40px;
+}
+
+.dialog section div span:first-child{
+  font-weight: 700;
+  font-size: 1.2rem;
+  text-align: start;
+  min-width: 50%;
+}
+
+.dialog section div span:last-child{
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--color-dusty-gray);
+  width: 50%;
+  text-align: start;
+}
+
+.dialog hr{
+  border: 1px solid var(--color-liquid-lava);
+  margin: 20px;
+}
+
+.dialog .close-dialog{
+  cursor: pointer;
+  background-color: var(--color-liquid-lava);
+  color: var(--color-snow);
+  padding: 10px;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.3s ease-in-out;
+  margin-left: 80%;
 }

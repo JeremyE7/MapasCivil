@@ -8,6 +8,8 @@ const $loader = document.querySelector('.loader-container')
 const $buttonHelper = document.querySelector('.helper button')
 const $spanHelper = document.querySelector('.helper span')
 const $buttonCleaner = document.querySelector('.input-container button')
+const $dialog = document.querySelector('.dialog')
+const $buttonCloseDialog = document.querySelector('.dialog .close-dialog')
 
 let layers = []
 let canDrop = false
@@ -52,6 +54,28 @@ function debounce(func, delay) {
     clearTimeout(timer)
     timer = setTimeout(() => func.apply(this, args), delay)
   }
+}
+
+$buttonCloseDialog.addEventListener('click', function () {
+  $dialog.close()
+  $dialog.querySelector('section').innerHTML = ''
+})
+
+export function showDialog(properties) {
+  console.log('Showing dialog', properties);
+  const keys = Object.keys(properties)
+  keys.forEach(key => {
+    const value = properties[key]
+    const div = document.createElement('div')
+    const span = document.createElement('span')
+    const span2 = document.createElement('span')
+    span.textContent = key
+    span2.textContent = value
+    div.appendChild(span)
+    div.appendChild(span2)
+    $dialog.querySelector('section').appendChild(div)
+  })
+  $dialog.showModal();
 }
 
 export function showLoader() {
