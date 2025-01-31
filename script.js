@@ -6,16 +6,33 @@ const $navLayers = document.querySelector('#layers')
 const searchInput = document.querySelector('#layer-search')
 const $loader = document.querySelector('.loader-container')
 const $buttonHelper = document.querySelector('.helper button')
-const $spanHelper = document.querySelector('.helper span')
+const $spanHelper = document.querySelector('.helper article')
 const $buttonCleaner = document.querySelector('.input-container button')
 const $dialog = document.querySelector('.dialog')
 const $buttonCloseDialog = document.querySelector('.dialog .close-dialog')
+const $alcantarillado = document.querySelector('.RedDeAlcantarillados')
+const $geologia = document.querySelector('.GeologiaRegional')
+const $geoformologia = document.querySelector('.GeoformologiaRegional')
+
+const sueloConsolidadoResponse = await fetch('table/SueloConsolidado.json')
+const sueloConsolidado = await sueloConsolidadoResponse.json()
+
+const SueloNoConsolidadoResponse = await fetch('table/SueloNoConsolidado.json')
+const SueloNoConsolidado = await SueloNoConsolidadoResponse.json()
 
 let layers = []
 let canDrop = false
 let draggingLi = null
 let previewElement = null
 let handleZoom
+
+function changeCursorPointerCheckbox(checkbox, type) {
+  checkbox.style.cursor = type
+  checkbox.nextElementSibling.style.cursor = type
+  checkbox.parentElement.style.cursor = type
+  checkbox.parentElement.previousSibling.style.cursor = type
+}
+
 
 document.addEventListener('keydown', function (e) {
   //Hacer que haga focus en el input cuando se presione CTRL + F
@@ -26,7 +43,7 @@ document.addEventListener('keydown', function (e) {
 })
 
 $buttonHelper.addEventListener('click', function () {
-  $spanHelper.style.display =  $spanHelper.style.display == 'block' ? 'none' : 'block'
+  $spanHelper.style.display =  $spanHelper.style.display == 'flex' ? 'none' : 'flex'
 })
 
 $buttonCleaner.addEventListener('click', function () {
@@ -39,13 +56,16 @@ $buttonCleaner.addEventListener('click', function () {
     //Poner estilos de desactivado al componente
     parent.style.opacity = 1
     checkbox.disabled = false
-
+    parent.removeAttribute('data-tooltip')
+    //Quitar el icono del puntero al checkbox
+    changeCursorPointerCheckbox(checkbox, 'pointer')
   })
   $buttonCleaner.style.pointerEvents = 'none'
   $buttonCleaner.style.opacity = 0.5    
   removeAllLayers()
   updateListLayer()
   renderAllLayers()
+  addTextHelpers()
 })
 
 function debounce(func, delay) {
@@ -55,21 +75,46 @@ function debounce(func, delay) {
     timer = setTimeout(() => func.apply(this, args), delay)
   }
 }
+function clearDialogContent() {
+  $dialog.querySelector('section').innerHTML = ''
+}
 
 $buttonCloseDialog.addEventListener('click', function () {
   $dialog.close()
-  $dialog.querySelector('section').innerHTML = ''
+  setTimeout(clearDialogContent, 200)
 })
 
 export function showDialog(properties) {
   console.log('Showing dialog', properties);
   const keys = Object.keys(properties)
   keys.forEach(key => {
+    let keyAux = key.charAt(0).toUpperCase() + key.slice(1).toLowerCase();
+    if(keyAux === 'Color' || keyAux === 'Fid' || keyAux === 'Uso_genera') return
+    if(keyAux === 'Descripcio') keyAux = 'Descripción'
+    if(keyAux === 'Pit'){
+      const soil = getInfoCodeSuelo(properties[key])
+      if(soil){
+        const keys = Object.keys(soil)
+        keys.forEach(key => {
+          const keyAux = key.charAt(0).toUpperCase() + key.slice(1).toLowerCase()
+          const value = soil[key]
+          const div = document.createElement('div')
+          const span = document.createElement('span')
+          const span2 = document.createElement('span')
+          span.textContent = keyAux
+          span2.textContent = value
+          div.appendChild(span)
+          div.appendChild(span2)
+          $dialog.querySelector('section').appendChild(div)
+        })
+        return
+      }
+    }
     const value = properties[key]
     const div = document.createElement('div')
     const span = document.createElement('span')
     const span2 = document.createElement('span')
-    span.textContent = key
+    span.textContent = keyAux
     span2.textContent = value
     div.appendChild(span)
     div.appendChild(span2)
@@ -121,6 +166,38 @@ function dragoverHandler(ev) {
   }
 }
 
+function addTextHelpers() {
+  //Recuperar solo los checkbox activados
+  const checkboxes = document.querySelectorAll('#layers input:checked')
+  console.log('checkboxes', checkboxes);
+  checkboxes.forEach(checkbox => {
+    if(checkbox.getAttribute('data-layer-name') === 'GeologiaRegional'){
+      $geologia.style.display = 'flex'
+    }
+    if(checkbox.getAttribute('data-layer-name') === 'RedDeAlcantarillados'){
+      $alcantarillado.style.display = 'flex'
+    }
+    if(checkbox.getAttribute('data-layer-name') === 'GeoformologiaRegional'){
+      $geoformologia.style.display = 'flex'
+    }
+  })
+  
+  //Recuperar solo los checkbox desactivados
+  const checkboxesDisabled = document.querySelectorAll('#layers input:not(:checked)')
+  checkboxesDisabled.forEach(checkbox => {
+    if(checkbox.getAttribute('data-layer-name') === 'GeologiaRegional'){
+      $geologia.style.display = 'none'
+    }
+    if(checkbox.getAttribute('data-layer-name') === 'RedDeAlcantarillados'){
+      $alcantarillado.style.display = 'none'
+    }
+    if(checkbox.getAttribute('data-layer-name') === 'GeoformologiaRegional'){
+      $geoformologia.style.display = 'none'
+    }
+  })
+
+}
+
 function dropHandler(ev) {
   ev.preventDefault()
   console.log('Drop')
@@ -142,6 +219,10 @@ function dropHandler(ev) {
   renderAllLayers()
   draggingLi = null
   canDrop = false
+  if(originalLi.querySelector('input').disabled){
+    console.log('disabled');
+    return
+  }
   originalLi.style.opacity = 1 // Restaura opacidad
 }
 
@@ -190,7 +271,7 @@ function removeAllLayers() {
 }
 
 const exclusiveLayers = [
-  'DivisonBarrial',
+  'DivisionBarrialRelleno',
   'DivisionParroquiasUrbanas',
   'GeoformologiaRegional',
   'GeologiaRegional',
@@ -220,17 +301,14 @@ function disableExclusiveLayers(selectedLayer) {
     if (!checkbox) return
 
     const parent = checkbox.parentElement.parentElement
-
+    parent.setAttribute('data-tooltip', 'Solo puede seleccionar una capa de este tipo')
     //Poner estilos de desactivado al componente
     parent.style.opacity = 0.5
     checkbox.checked = false
     checkbox.disabled = true
 
     //Quitar el icono del puntero al checkbox
-    checkbox.style.cursor = 'auto'
-    checkbox.nextElementSibling.style.cursor = 'auto'
-    checkbox.parentElement.style.cursor = 'auto'
-    checkbox.parentElement.previousSibling.style.cursor = 'auto'
+    changeCursorPointerCheckbox(checkbox, 'auto')
 
     // Eliminar capa del array de capas
     console.log('layers', layers, checkbox.id.split('-')[1]);
@@ -253,6 +331,9 @@ function enableExclusiveLayers() {
     if (checkbox && !checkbox.checked) {
       checkbox.disabled = false
       checkbox.parentElement.parentElement.style.opacity = 1
+      checkbox.style.cursor = 'auto'
+      checkbox.parentElement.parentElement.removeAttribute('data-tooltip')
+      changeCursorPointerCheckbox(checkbox, 'pointer')
     }
   })
 }
@@ -322,9 +403,12 @@ function addLayerOption(layer, opciones, displayName, zoom) {
     if(layers.length > 0) {
       $buttonCleaner.style.pointerEvents = 'auto'
       $buttonCleaner.style.opacity = 1
+    }else{
+      $buttonCleaner.style.pointerEvents = 'none'
+      $buttonCleaner.style.opacity = 0.5
     }
     console.log('Layers:', layers);
-    
+    addTextHelpers()
   }
 
   li.innerHTML = `<label for="${checkbox.id}">${displayName || layer.name}</label>`
@@ -338,7 +422,9 @@ function addLayerOption(layer, opciones, displayName, zoom) {
   })
 
   li.addEventListener('dragend', function (e) {
-    li.style.opacity = 1
+    if(!li.querySelector('input').disabled){
+      li.style.opacity = 1
+    }
 
     if (previewElement) {
       draggingLi.style.display = 'flex'
@@ -405,7 +491,7 @@ export function decodificarCodigo(codigo) {
       };
   }
 
-  const subclasificacionCodigo = codigo.substring(0, 2);
+  const subclasificacionCodigo = codigo.substring(0, 1);
   const usoGeneralCodigo = codigo.substring(2, 4);
   const sumaAreaAlturaCodigo = codigo.substring(4, 7); 
   const areaMinimaCodigo = codigo.substring(8, 10);
@@ -472,3 +558,10 @@ export function decodificarCodigo(codigo) {
       explicacion
   };
 }
+
+function getInfoCodeSuelo (code) {
+  const soil = sueloConsolidado.find(soil => soil.PIT === code)
+  if(soil) return soil
+  const soilN = SueloNoConsolidado.find(soil => soil.PIT === code)
+  return soilN
+} 

@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
 
-:root{
+:root {
   --color-dark-void: #151419;
   --color-liquid-lava: #f56e0f;
   --color-gluon-gray: #1b1b1e;
@@ -34,7 +34,7 @@ body {
   outline: none;
 }
 
-.nav_layers{
+.nav_layers {
   --color-dark-void: #151419c5;
   position: absolute;
   top: 0px;
@@ -49,7 +49,7 @@ body {
   color: var(--color-snow);
 }
 
-#layers{
+#layers {
   display: flex;
   flex-direction: column;
   height: 94%;
@@ -63,7 +63,7 @@ body {
   scrollbar-gutter: stable;
 }
 
-#layers li{
+#layers li {
   display: flex;
   justify-content: start;
   margin-bottom: 5px;
@@ -71,11 +71,11 @@ body {
   height: 30px;
   align-items: center;
   padding: 10px;
-  transition: all 0.3s ease-in-out; 
+  transition: all 0.3s ease-in-out;
   animation: appear 0.3s ease-in-out;
 }
 
-#layers li label:first-child{
+#layers li label:first-child {
   cursor: pointer;
 }
 
@@ -189,7 +189,7 @@ body {
 }
 
 /* When the checkbox is checked, add a blue background */
-.container input:checked ~ .checkmark {
+.container input:checked~.checkmark {
   background-color: var(--color-liquid-lava);
   border-radius: .5rem;
   animation: pulse 500ms ease-in-out;
@@ -203,7 +203,7 @@ body {
 }
 
 /* Show the checkmark when checked */
-.container input:checked ~ .checkmark:after {
+.container input:checked~.checkmark:after {
   display: block;
 }
 
@@ -246,10 +246,10 @@ body {
   100% {
     opacity: 1;
   }
-  
+
 }
 
-.custom-text-icon{
+.custom-text-icon {
   width: fit-content;
   text-wrap: nowrap;
   color: var(--color-slate-grey);
@@ -258,7 +258,7 @@ body {
   font-weight: 700;
 }
 
-.helper{
+.helper {
   position: absolute;
   bottom: 0;
   left: 0;
@@ -266,7 +266,7 @@ body {
   padding: 20px;
 }
 
-.helper button{
+.helper button {
   --color-liquid-lava: #f56f0fec;
   background-color: var(--color-liquid-lava);
   color: var(--color-snow);
@@ -281,13 +281,14 @@ body {
   transition: all 0.3s ease-in-out;
 }
 
-.helper span{
+.helper article {
   --color-dark-void: #151419c5;
   display: none;
   position: absolute;
-  top: -30px;
+  top: -500px;
   left: 45px;
-  width: 200px;
+  width: 400px;
+  height: 500px;
   background-color: var(--color-dark-void);
   padding: 10px;
   border-radius: 20px 20px 20px 0px;
@@ -296,10 +297,60 @@ body {
   font-size: 0.8rem;
   animation: appearFromBottomLeftAndScale 0.2s ease-in-out;
   text-align: center;
+  flex-direction: column;
+  gap: 10px;
+  padding: 20px;
+  justify-content: center;
 }
 
+.info-container {
+  display: flex;
+  gap: 20px;
+  flex-direction: column;
+  overflow-y: scroll;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-liquid-lava) transparent;
+  padding: 0px 20px 20px 20px;
+}
+
+.general-text {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: var(--color-dusty-gray);
+}
+
+.info-container p:first-child {
+  font-size: 1;
+  font-weight: 300;
+  margin-bottom: 10px;
+  color: var(--color-snow);
+  height: fit-content;
+}
+
+
+.helper div {
+  text-align: justify;
+}
+
+.helper article div {
+  display: flex;
+  gap: 10px;
+  flex-direction: column;
+}
+
+.helper article div div span:first-child {
+  color: var(--color-dusty-gray);
+}
+
+.help-text hr {
+  border: 1px solid var(--color-liquid-lava);
+  margin: 20px;
+}
+
+
 @keyframes appearFromBottomLeftAndScale {
-  
+
   0% {
     transform: translate(-50%, 100%) scale(0);
   }
@@ -309,12 +360,12 @@ body {
   }
 }
 
-.input-container{
+.input-container {
   display: flex;
   gap: 10px;
 }
 
-.input-container button{
+.input-container button {
   --color-liquid-lava: #f56f0fec;
   background-color: transparent;
   color: var(--color-liquid-lava);
@@ -330,12 +381,12 @@ body {
   margin-left: 5px;
 }
 
-.input-container button:hover{
+.input-container button:hover {
   transform: scale(1.1);
 }
 
 
-.dialog{
+.dialog {
   top: 0;
   left: 0;
   right: 0;
@@ -350,14 +401,37 @@ body {
   width: 350px;
   border-radius: 20px;
   box-shadow: 0 0 10px var(--color-dark-void);
+  background-color: rgba(21, 20, 25, 0.8);
+  backdrop-filter: blur(1px) saturate(20%);
+  -webkit-backdrop-filter: blur(1px) saturate(20%);
+  border: 1px solid rgba(21, 20, 25, 0.2);
 }
 
-.dialog::backdrop{
+dialog {
+  transition: scale 0.3s ease-in-out, display 0.3s ease allow-discrete;
+  scale: 0;
+}
+
+.dialog[open] {
+  scale: 1;
+  transition: all 0.3s ease-in-out;
+
+  @starting-style {
+    scale: 0;
+  }
+}
+
+.dialog::backdrop {
   background-color: var(--color-dark-void);
   opacity: 0.5;
+  transition: all 0.3s ease-in-out;
+
+  @starting-style {
+    opacity: 0;
+  }
 }
 
-.dialog h1{
+.dialog h1 {
   font-size: 1.3rem;
   font-weight: 700;
   margin-bottom: 20px;
@@ -369,39 +443,43 @@ body {
   margin-left: 20px;
 }
 
-.dialog section{
+.dialog section {
   padding: 10px 20px;
+  max-height: 300px;
+  overflow-y: scroll;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-liquid-lava) transparent;
 }
 
 
-.dialog section div{
+.dialog section div {
   padding: 10px;
   border-radius: 10px;
   display: flex;
   gap: 40px;
 }
 
-.dialog section div span:first-child{
+.dialog section div span:first-child {
   font-weight: 700;
   font-size: 1.2rem;
   text-align: start;
-  min-width: 50%;
+  min-width: 40%;
 }
 
-.dialog section div span:last-child{
+.dialog section div span:last-child {
   font-weight: 600;
   font-size: 1rem;
   color: var(--color-dusty-gray);
-  width: 50%;
+  width: 60%;
   text-align: start;
 }
 
-.dialog hr{
+.dialog hr {
   border: 1px solid var(--color-liquid-lava);
   margin: 20px;
 }
 
-.dialog .close-dialog{
+.dialog .close-dialog {
   cursor: pointer;
   background-color: var(--color-liquid-lava);
   color: var(--color-snow);
@@ -414,4 +492,39 @@ body {
   font-family: 'Inter', sans-serif;
   transition: all 0.3s ease-in-out;
   margin-left: 80%;
+}
+
+
+[data-tooltip] {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  top: 26px;
+  color: black;
+  width: 100px;
+  min-height: 24px;
+  padding-block: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  font-size: 12px;
+  transform: translateY(-20px) scale(0.9);
+  background-color: var(--color-liquid-lava);
+  text-align: center;
+  opacity: 0;
+  transition: 200ms;
+  width: fit-content;
+  z-index: 1000;
+}
+
+[data-tooltip]:hover::after {
+  transform: translateY(-20px) scale(1);
+  opacity: 1;
 }

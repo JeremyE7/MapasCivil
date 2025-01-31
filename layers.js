@@ -2,30 +2,6 @@ import { showDialog } from "./script.js";
 
 export const capas = [
     {
-        nombre: 'Cantones.geojson', displayName: 'Cantones', config: {
-            style: {
-                color: 'blue',
-                weight: 1
-            }
-        }
-    },
-    {
-        nombre: 'CantonLoja.geojson', displayName: 'Cantón Loja', config: {
-            style: {
-                color: 'green',
-                weight: 1
-            }
-        }
-    },
-    {
-        nombre: 'ConjuntoDeParroquias.geojson', displayName: 'Conjunto de Parroquias', config: {
-            style: {
-                color: 'purple',
-                weight: 1
-            }
-        }
-    },
-    {
         nombre: 'COS.geojson', displayName: 'COS', config: {
             style: feature => ({
                 weight: 2,
@@ -35,14 +11,14 @@ export const capas = [
             }),
             onEachFeature: (feature, layer) => {
                 layer.on('click', () => {
-                    alert(`COS: ${feature.properties['COS%']}`)
+                    showDialog(feature.properties)
                 })
                 layer.on('mouseover', function () {
                     this.setStyle({ weight: 3, fillOpacity: 1 }); // Aumenta el grosor del borde
                 });
         
                 layer.on('mouseout', function () {
-                    this.setStyle({ weight: 2, fillOpacity: 0.5 }); // Vuelve al tamaño normal
+                    this.setStyle({ weight: 1, fillOpacity: 0.3 }); // Vuelve al tamaño normal
                 });
             },
         }
@@ -55,10 +31,22 @@ export const capas = [
                 opacity: 1,
                 fillOpacity: 0.5
             }),
+            onEachFeature: (feature, layer) => {
+                layer.on('click', () => {
+                    showDialog(feature.properties)
+                })
+                layer.on('mouseover', function () {
+                    this.setStyle({ weight: 3, fillOpacity: 1 }); // Aumenta el grosor del borde
+                });
+        
+                layer.on('mouseout', function () {
+                    this.setStyle({ weight: 1, fillOpacity: 0.3 }); // Vuelve al tamaño normal
+                });
+            },
         }
     },
     {
-        nombre: 'DivisionParroquial.geojson', displayName: 'División Parroquial', config: {
+        nombre: 'DivisionParroquial.geojson', displayName: 'División Parroquial (Sin relleno)', config: {
             style: {
                 color: 'red',
                 weight: 1
@@ -66,21 +54,53 @@ export const capas = [
         }
     },
     {
-        nombre: 'DivisionParroquiasUrbanas.geojson', displayName: 'División de Parroquias Urbanas', config: {
+        nombre: 'DivisionParroquiasUrbanas.geojson', displayName: 'División Parroquial', config: {
             style: feature => ({
                 weight: 2,
                 color: feature.properties.color,
                 opacity: 1,
                 fillOpacity: 0.5
             }),
+            onEachFeature: (feature, layer) => {
+                layer.on('click', () => {
+                    showDialog(feature.properties)
+                })
+                layer.on('mouseover', function () {
+                    this.setStyle({ weight: 3, fillOpacity: 1 }); // Aumenta el grosor del borde
+                });
+        
+                layer.on('mouseout', function () {
+                    this.setStyle({ weight: 1, fillOpacity: 0.3 }); // Vuelve al tamaño normal
+                });
+            },
         }
     },
     {
-        nombre: 'DivisonBarrial.geojson', displayName: 'División Barrial', config: {
+        nombre: 'DivisonBarrial.geojson', displayName: 'División Barrial (Sin Relleno)', config: {
             style: {
                 color: 'cyan',
                 weight: 2
             }
+        }
+    },
+    {
+        nombre: 'DivisionBarrialRelleno.geojson', displayName: 'División Barrial', config: {
+            style: feature => ({
+                color: feature.properties.color,
+                weight: 2
+            }),
+            onEachFeature: (feature, layer) => {
+                layer.on('click', () => {
+                    showDialog(feature.properties)
+                })
+                layer.on('mouseover', function () {
+                    this.setStyle({ weight: 3, fillOpacity: 1 }); // Aumenta el grosor del borde
+                });
+        
+                layer.on('mouseout', function () {
+                    this.setStyle({ weight: 1, fillOpacity: 0.3 }); // Vuelve al tamaño normal
+                });
+            },
         }
     },
     {
@@ -91,6 +111,18 @@ export const capas = [
                 opacity: 1,
                 fillOpacity: 0.5
             }),
+            onEachFeature: (feature, layer) => {
+                layer.on('click', () => {
+                    showDialog(feature.properties)
+                })
+                layer.on('mouseover', function () {
+                    this.setStyle({ weight: 3, fillOpacity: 1 }); // Aumenta el grosor del borde
+                });
+        
+                layer.on('mouseout', function () {
+                    this.setStyle({ weight: 1, fillOpacity: 0.3 }); // Vuelve al tamaño normal
+                });
+            },
         }
     },
     {
@@ -101,6 +133,18 @@ export const capas = [
                 opacity: 1,
                 fillOpacity: 0.5
             }),
+            onEachFeature: (feature, layer) => {
+                layer.on('click', () => {
+                    showDialog(feature.properties)
+                })
+                layer.on('mouseover', function () {
+                    this.setStyle({ weight: 3, fillOpacity: 1 }); // Aumenta el grosor del borde
+                });
+        
+                layer.on('mouseout', function () {
+                    this.setStyle({ weight: 1, fillOpacity: 0.3 }); // Vuelve al tamaño normal
+                });
+            },
         }
     },
     {
@@ -128,33 +172,9 @@ export const capas = [
         }
     },
     {
-        nombre: 'Parroquias.geojson', displayName: 'Parroquias', config: {
-            style: {
-                color: 'green',
-                weight: 1
-            }
-        }
-    },
-    {
-        nombre: 'Predial2015.geojson', displayName: 'Predial 2015', config: {
+        nombre: 'Predial2015.geojson', displayName: 'División Catastral', config: {
             style: {
                 color: 'purple',
-                weight: 1
-            }
-        }
-    },
-    {
-        nombre: 'ProvinciaDeLoja.geojson', displayName: 'Provincia de Loja', config: {
-            style: {
-                color: 'orange',
-                weight: 1
-            }
-        }
-    },
-    {
-        nombre: 'Provincias.geojson', displayName: 'Provincias', config: {
-            style: {
-                color: 'brown',
                 weight: 1
             }
         }
@@ -195,6 +215,18 @@ export const capas = [
                 opacity: 1,
                 fillOpacity: 0.5
             }),
+            onEachFeature: (feature, layer) => {
+                layer.on('click', () => {
+                    showDialog(feature.properties)
+                })
+                layer.on('mouseover', function () {
+                    this.setStyle({ weight: 3, fillOpacity: 1 }); // Aumenta el grosor del borde
+                });
+        
+                layer.on('mouseout', function () {
+                    this.setStyle({ weight: 1, fillOpacity: 0.3 }); // Vuelve al tamaño normal
+                });
+            },
         }
     },
     {
@@ -205,6 +237,18 @@ export const capas = [
                 opacity: 1,
                 fillOpacity: 0.5
             }),
+            onEachFeature: (feature, layer) => {
+                layer.on('click', () => {
+                    showDialog(feature.properties)
+                })
+                layer.on('mouseover', function () {
+                    this.setStyle({ weight: 3, fillOpacity: 1 }); // Aumenta el grosor del borde
+                });
+        
+                layer.on('mouseout', function () {
+                    this.setStyle({ weight: 1, fillOpacity: 0.3 }); // Vuelve al tamaño normal
+                });
+            },
         }
     },
     {
@@ -228,6 +272,18 @@ export const capas = [
                 opacity: 1,
                 fillOpacity: 0.5
             }),
+            onEachFeature: (feature, layer) => {
+                layer.on('click', () => {
+                    showDialog(feature.properties)
+                })
+                layer.on('mouseover', function () {
+                    this.setStyle({ weight: 3, fillOpacity: 1 }); // Aumenta el grosor del borde
+                });
+        
+                layer.on('mouseout', function () {
+                    this.setStyle({ weight: 1, fillOpacity: 0.3 }); // Vuelve al tamaño normal
+                });
+            },
         }
     }
 ];
