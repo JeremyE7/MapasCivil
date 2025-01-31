@@ -392,3 +392,83 @@ function searchLayer() {
     }
   })
 }
+
+export function decodificarCodigo(codigo) {
+  // Caso especial: SCEU00000
+  if (codigo === "SCEU00000") {
+      return {
+          subclasificacion: "Suelo Consolidado",
+          usoGeneral: "Equipamiento Urbano",
+          sumaAreaAltura: "No requiere",
+          areaMinimaLote: "No requiere",
+          explicacion: "El polígono tiene un tipo de suelo consolidado destinado a equipamiento urbano. No requiere la determinación de características de ocupación referidas al lote mínimo, altura ni área de lote por vivienda."
+      };
+  }
+
+  const subclasificacionCodigo = codigo.substring(0, 2);
+  const usoGeneralCodigo = codigo.substring(2, 4);
+  const sumaAreaAlturaCodigo = codigo.substring(4, 7); 
+  const areaMinimaCodigo = codigo.substring(8, 10);
+
+  // Decodificar la subclasificación del suelo
+  let subclasificacion;
+  switch (subclasificacionCodigo) {
+      case "SC":
+          subclasificacion = "Suelo Consolidado";
+          break;
+      case "NC":
+          subclasificacion = "Suelo No Consolidado";
+          break;
+      case "SP":
+          subclasificacion = "Suelo de Protección";
+          break;
+      default:
+          subclasificacion = "Desconocido";
+  }
+
+  // Decodificar el uso general del suelo
+  let usoGeneral;
+  switch (usoGeneralCodigo) {
+      case "R1":
+          usoGeneral = "Residencial Tipo 1 (vivienda unifamiliar, bifamiliar y comercio de giro primario)";
+          break;
+      case "R2":
+          usoGeneral = "Residencial Tipo 2 (vivienda unifamiliar, bifamiliar, multifamiliar y comercio de giro primario, secundario)";
+          break;
+      case "R3":
+          usoGeneral = "Residencial Tipo 3 (vivienda unifamiliar, bifamiliar, multifamiliar y comercio todos los giros)";
+          break;
+      case "IS":
+          usoGeneral = "Vivienda de Interés Social";
+          break;
+      case "EU":
+          usoGeneral = "Equipamiento Urbano";
+          break;
+      case "AU":
+          usoGeneral = "Agricultura Urbana";
+          break;
+      case "ST":
+          usoGeneral = "Servicios Turísticos";
+          break;
+      default:
+          usoGeneral = "Desconocido";
+  }
+
+  // Decodificar la suma del área del lote mínimo y la altura de la edificación
+  const sumaAreaAltura = parseInt(sumaAreaAlturaCodigo, 10);
+
+  // Decodificar el área mínima del lote por vivienda
+  const areaMinimaLote = parseInt(areaMinimaCodigo, 10);
+
+  // Crear la explicación descriptiva
+  const explicacion = `El polígono tiene un tipo de suelo ${subclasificacion.toLowerCase()} destinado a ${usoGeneral.toLowerCase()}. ` +
+      `En este caso, la suma del área del lote mínimo y la altura de la edificación es ${sumaAreaAltura}. ` +
+      `El área mínima del lote por vivienda es de ${areaMinimaLote} m².`;
+  return {
+      subclasificacion,
+      usoGeneral,
+      sumaAreaAltura,
+      areaMinimaLote,
+      explicacion
+  };
+}
